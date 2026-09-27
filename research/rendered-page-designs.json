@@ -1,0 +1,1131 @@
+{
+  "source": "https://www.shelf.im/",
+  "method": "Chromium-rendered public markup parsed with Scrapling adaptive Selector",
+  "robots_txt_obeyed": true,
+  "pages": [
+    {
+      "url": "https://www.shelf.im/",
+      "status": "rendered",
+      "title": "Get a Shelf",
+      "copy": [
+        "Get the app",
+        "ORGANIZE YOUR TASTE",
+        "ALL IN ONE PLACE",
+        "Your Data Rights"
+      ],
+      "controls": [
+        {
+          "label": "Get the app",
+          "kind": "a",
+          "class": "framer-1l5daoo framer-lux5qc",
+          "href": "https://onelink.to/cp6dpr"
+        },
+        {
+          "label": "Your Data Rights",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-o86k2v",
+          "href": "https://www.shelf.im/data-rights"
+        }
+      ],
+      "images": [
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/vikzmo9z6XVuT5qqaLDVsX95iX4.png?width=336&height=90",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/aEyM8StxLauaKLEAtLDpNPegbLg.svg?width=18&height=14",
+          "class": ""
+        }
+      ],
+      "internal_routes": [
+        "/data-rights",
+        "/discord"
+      ],
+      "inline_css_bytes": 141961,
+      "css_colors": [
+        [
+          "#000",
+          27
+        ],
+        [
+          "#6149f3",
+          2
+        ],
+        [
+          "#fff",
+          2
+        ],
+        [
+          "#dbf349",
+          2
+        ],
+        [
+          "#09f",
+          2
+        ],
+        [
+          "#fefffa",
+          2
+        ],
+        [
+          "#1a1e28",
+          1
+        ],
+        [
+          "#0000001a",
+          1
+        ],
+        [
+          "#111",
+          1
+        ],
+        [
+          "rgba(34, 34, 34, 0.8)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.1)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.05)",
+          1
+        ],
+        [
+          "rgba(255, 255, 255, 0.15)",
+          1
+        ],
+        [
+          "rgb(97, 73, 243)",
+          1
+        ]
+      ],
+      "font_families": [
+        [
+          "\"Inter\"",
+          127
+        ],
+        [
+          "\"Inter Display\"",
+          126
+        ],
+        [
+          "\"Inter Variable\"",
+          14
+        ],
+        [
+          "'Be Vietnam Pro'",
+          6
+        ],
+        [
+          "var(--framer-code-font-family,var(--framer-font-family,Inter, Inter Placeholder, sans-serif))",
+          3
+        ],
+        [
+          "\"Supria-Sans-Web-Cond-Bold ¶\"",
+          2
+        ],
+        [
+          "Inter, Inter Placeholder, sans-serif",
+          2
+        ],
+        [
+          "\"PP Neue Montreal Regular\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Book\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Medium\"",
+          1
+        ],
+        [
+          "\"OT Neue Montreal Medium Extra Squeezed\"",
+          1
+        ],
+        [
+          "\"Supria-Sans-Web-Medium-Italic ¶\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold Italic\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Italic\"",
+          1
+        ],
+        [
+          "\"Supria Sans Regular\"",
+          1
+        ],
+        [
+          "\"Wallop SemiBold\"",
+          1
+        ],
+        [
+          "\"Be Vietnam Pro Placeholder\"",
+          1
+        ]
+      ],
+      "keyframes": [],
+      "motion_rules": [
+        "opacity 0.4s ease-out"
+      ]
+    },
+    {
+      "url": "https://www.shelf.im/media-kit",
+      "status": "rendered",
+      "title": "I want to talk about Shelf…",
+      "copy": [
+        "I want to talk about Shelf…",
+        "So your friend asks, \"wtf is Shelf?\" Here's what you can say:",
+        "It's a digital shelf that updates as you read, watch and listen. It’s kind of like Spotify Wrapped, Goodreads and Letterboxd rolled into one.",
+        "Check out my Shelf: shelf.im/[your username 👀]",
+        "Beyonce",
+        "Shelf power user (*manifesting*)",
+        "How do you explain it?",
+        "DM us on IG",
+        "and let us know, you marketing genius!",
+        "What is the Shelf app?",
+        "See More",
+        "The story behind Shelf",
+        "Creator Resources",
+        "Tag us and we'll amplify 📣",
+        "IG",
+        ",",
+        "Twitter",
+        "TikTok",
+        "LinkedIn",
+        "OnlyFans",
+        "Thinking of publishing a story about Shelf?"
+      ],
+      "controls": [
+        {
+          "label": "It's a digital shelf that updates as you read, watch and listen. It’s kind of like Spotify Wrapped, ",
+          "kind": "a",
+          "class": "framer-hjM8K framer-1xvjykw framer-v-1xvjykw framer-1yk1d2q",
+          "href": "https://ctt.ac/ebh7V"
+        },
+        {
+          "label": "DM us on IG",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.instagram.com/getashelf"
+        },
+        {
+          "label": "See More",
+          "kind": "a",
+          "class": "framer-1ktgl3c framer-rfkuup",
+          "href": "https://koodos.notion.site/What-is-Shelf-aa0515f7df18493d88e3ca1319613520"
+        },
+        {
+          "label": "See More",
+          "kind": "a",
+          "class": "framer-d3no2y framer-rfkuup",
+          "href": "https://koodos.notion.site/The-story-behind-Shelf-c5e62ede629248b590c741a9ee15c8b6"
+        },
+        {
+          "label": "See More",
+          "kind": "a",
+          "class": "framer-rvxay1 framer-rfkuup",
+          "href": "https://koodos.notion.site/Brand-Materials-68d68cb78b2b461a96f6f7cf90a54fcc"
+        },
+        {
+          "label": "IG",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.instagram.com/getashelf"
+        },
+        {
+          "label": "Twitter",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://twitter.com/getashelf"
+        },
+        {
+          "label": "TikTok",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.tiktok.com/@getashelf"
+        },
+        {
+          "label": "LinkedIn",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.linkedin.com/company/koodos-inc/"
+        },
+        {
+          "label": "OnlyFans",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        }
+      ],
+      "images": [
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/Q6BGg0ZMarNJno5GR2RGzwtnjUU.png?width=1920&height=1579",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/7VE1ZGiin05lLIZrYX9ARfn3NXQ.webp?width=1296&height=730",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/LbqzuADKDYPuVtbvjAmMP9pao.png",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/rmL5UVGgiaEjqIqLB8CPe8w4E.png",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/B9IcChySs92bF13gFTAzyn6Csxs.png",
+          "class": ""
+        }
+      ],
+      "internal_routes": [],
+      "inline_css_bytes": 160001,
+      "css_colors": [
+        [
+          "#000",
+          37
+        ],
+        [
+          "#0000000d",
+          9
+        ],
+        [
+          "#fff",
+          5
+        ],
+        [
+          "#fefffa",
+          5
+        ],
+        [
+          "#09f",
+          4
+        ],
+        [
+          "#6149f3",
+          2
+        ],
+        [
+          "#1a1e28",
+          2
+        ],
+        [
+          "#111",
+          2
+        ],
+        [
+          "#dbf349",
+          1
+        ],
+        [
+          "#222",
+          1
+        ],
+        [
+          "#00000026",
+          1
+        ],
+        [
+          "#00000025",
+          1
+        ],
+        [
+          "#00000023",
+          1
+        ],
+        [
+          "#00000020",
+          1
+        ],
+        [
+          "#0000001b",
+          1
+        ],
+        [
+          "#666",
+          1
+        ],
+        [
+          "rgba(34, 34, 34, 0.8)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.1)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.05)",
+          1
+        ],
+        [
+          "rgba(255, 255, 255, 0.15)",
+          1
+        ]
+      ],
+      "font_families": [
+        [
+          "\"Inter\"",
+          127
+        ],
+        [
+          "\"Inter Display\"",
+          126
+        ],
+        [
+          "\"Inter Variable\"",
+          14
+        ],
+        [
+          "'Be Vietnam Pro'",
+          6
+        ],
+        [
+          "var(--framer-code-font-family,var(--framer-font-family,Inter, Inter Placeholder, sans-serif))",
+          3
+        ],
+        [
+          "\"Supria-Sans-Web-Cond-Bold ¶\"",
+          2
+        ],
+        [
+          "var(--font-family)",
+          2
+        ],
+        [
+          "var(--framer-font-family)",
+          2
+        ],
+        [
+          "Inter, Inter Placeholder, sans-serif",
+          2
+        ],
+        [
+          "\"PP Neue Montreal Regular\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Book\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Medium\"",
+          1
+        ],
+        [
+          "\"OT Neue Montreal Medium Extra Squeezed\"",
+          1
+        ],
+        [
+          "\"Supria-Sans-Web-Medium-Italic ¶\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold Italic\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Italic\"",
+          1
+        ],
+        [
+          "\"Supria Sans Regular\"",
+          1
+        ]
+      ],
+      "keyframes": [],
+      "motion_rules": [
+        "opacity 0.4s ease-out"
+      ]
+    },
+    {
+      "url": "https://www.shelf.im/woms",
+      "status": "rendered",
+      "title": "Shelf",
+      "copy": [
+        "What's on my Shelf?",
+        "The award-winning* series featuring creators, artists and tastemakers sharing what's on their Shelf.",
+        "(manifesting*)",
+        "Get a Shelf",
+        "What's on my Shelf?:",
+        "Avantika",
+        "shelf.im/avantika",
+        "Corbin Chase",
+        "shelf.im/corbinchase",
+        "Celebrity Memoir Book Club",
+        "shelf.im/ashleyhammm",
+        "shelf.im/clairethescare",
+        "Kailey Laise",
+        "shelf.im/kailey",
+        "Jean-Luc",
+        "shelf.im/thejeanluc",
+        "Courtney Kinnare",
+        "shelf.im/courtneykinnare",
+        "Moss Perricone",
+        "shelf.im/mossperricone",
+        "Simona Ruzer",
+        "shelf.im/simonachrome",
+        "Dominique Reshae",
+        "shelf.im/dominiquereshae",
+        "Alex Mutammara",
+        "shelf.im/mutammara",
+        "Love yourshelf"
+      ],
+      "controls": [
+        {
+          "label": "Get a Shelf",
+          "kind": "a",
+          "class": "framer-cxum2b framer-vfzvon",
+          "href": "https://onelink.to/cp6dpr"
+        },
+        {
+          "label": "What's on my Shelf?: Avantika",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-avantika"
+        },
+        {
+          "label": "shelf.im/avantika",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/avantika"
+        },
+        {
+          "label": "What's on my Shelf?: Corbin Chase",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-corbin-chase"
+        },
+        {
+          "label": "shelf.im/corbinchase",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://shelf.im/corbinchase"
+        },
+        {
+          "label": "What's on my Shelf?:",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-celebrity-memoir?r=od1n&utm_campaign=post&utm_medium=web"
+        },
+        {
+          "label": "Celebrity Memoir Book Club",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-celebrity-memoir?r=od1n&utm_campaign=post&utm_medium=web"
+        },
+        {
+          "label": "shelf.im/ashleyhammm",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/ashleyhammm"
+        },
+        {
+          "label": "shelf.im/clairethescare",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/clairethescare"
+        },
+        {
+          "label": "What's on my Shelf?: Kailey Laise",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-kailey-laise?r=od1n&utm_campaign=post&utm_medium=web"
+        },
+        {
+          "label": "shelf.im/kailey",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/kailey"
+        },
+        {
+          "label": "What's on my Shelf?: Jean-Luc",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-jean-luc"
+        },
+        {
+          "label": "shelf.im/thejeanluc",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/thejeanluc"
+        },
+        {
+          "label": "What's on my Shelf?: Courtney Kinnare",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://open.substack.com/pub/koodos/p/whats-on-my-shelf-courtney-kinnare?r=od1n&utm_campaign=post&utm_medium=web&showWelcome=true"
+        },
+        {
+          "label": "shelf.im/courtneykinnare",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "http://www.shelf.im/courtneykinnare"
+        },
+        {
+          "label": "What's on my Shelf?: Moss Perricone",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://open.substack.com/pub/koodos/p/whats-on-my-shelf-courtney-kinnare?r=od1n&utm_campaign=post&utm_medium=web&showWelcome=true"
+        },
+        {
+          "label": "shelf.im/mossperricone",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://shelf.im/mossperricone"
+        },
+        {
+          "label": "What's on my Shelf?: Simona Ruzer",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://open.substack.com/pub/koodos/p/whats-on-my-shelf-simona?r=od1n&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true"
+        },
+        {
+          "label": "shelf.im/simonachrome",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/simonachrome"
+        },
+        {
+          "label": "What's on my Shelf?: Dominique Reshae",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-dominique"
+        },
+        {
+          "label": "shelf.im/dominiquereshae",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/dominiquereshae"
+        },
+        {
+          "label": "What's on my Shelf?: Alex Mutammara",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://blog.koodos.com/p/whats-on-my-shelf-dominique"
+        },
+        {
+          "label": "shelf.im/mutammara",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.shelf.im/mutammara"
+        }
+      ],
+      "images": [
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/fHr68pUaV4UWuDB2SQq7n4OkVM.png?width=1174&height=459",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/JSADyGdjeQkPXExNT0AzPod3k4.jpg",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/6nBrAWvOa7kcPslGWJ8SSrRShA.jpg",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/m8kKWYjGIpticE4o0H4oNPICobk.png?scale-down-to=1024",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/hlTqrp8mYVvxkyFHnYc0BbUEE.png",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/iXBqocpb2HcHM0r0jmuWCJapHE.jpg",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/9qRnqiYK8Xpo7Hf9d3MLWlKifBc.jpg",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/EZnfypORC1AoxqiGIqk9gUKaXc.jpg",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/gk1clzbt0otRUf4i13XGFT0.png",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/pMofcBtGzYLiKVJV5R0VkkdZryg.jpg",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/lRgXjXHlqKwQ6Vu85iQQYXPcbI.png?scale-down-to=1024",
+          "class": ""
+        },
+        {
+          "alt": "",
+          "src": "https://framerusercontent.com/images/aEyM8StxLauaKLEAtLDpNPegbLg.svg",
+          "class": ""
+        }
+      ],
+      "internal_routes": [
+        "/",
+        "/avantika",
+        "/corbinchase",
+        "/ashleyhammm",
+        "/clairethescare",
+        "/kailey",
+        "/thejeanluc",
+        "/courtneykinnare",
+        "/mossperricone",
+        "/simonachrome",
+        "/dominiquereshae",
+        "/mutammara"
+      ],
+      "inline_css_bytes": 164738,
+      "css_colors": [
+        [
+          "#000",
+          37
+        ],
+        [
+          "#fefffa",
+          5
+        ],
+        [
+          "#1a1e28",
+          4
+        ],
+        [
+          "#6149f3",
+          3
+        ],
+        [
+          "#fff",
+          2
+        ],
+        [
+          "#09f",
+          2
+        ],
+        [
+          "#111",
+          2
+        ],
+        [
+          "#dbf349",
+          1
+        ],
+        [
+          "#00000026",
+          1
+        ],
+        [
+          "#00000025",
+          1
+        ],
+        [
+          "#00000023",
+          1
+        ],
+        [
+          "#00000020",
+          1
+        ],
+        [
+          "#0000001b",
+          1
+        ],
+        [
+          "#0000000d",
+          1
+        ],
+        [
+          "#eee",
+          1
+        ],
+        [
+          "rgba(34, 34, 34, 0.8)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.1)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.05)",
+          1
+        ],
+        [
+          "rgba(255, 255, 255, 0.15)",
+          1
+        ]
+      ],
+      "font_families": [
+        [
+          "\"Inter\"",
+          127
+        ],
+        [
+          "\"Inter Display\"",
+          126
+        ],
+        [
+          "\"Inter Variable\"",
+          14
+        ],
+        [
+          "'Be Vietnam Pro'",
+          6
+        ],
+        [
+          "var(--framer-code-font-family,var(--framer-font-family,Inter, Inter Placeholder, sans-serif))",
+          3
+        ],
+        [
+          "\"Supria-Sans-Web-Cond-Bold ¶\"",
+          2
+        ],
+        [
+          "var(--font-family)",
+          2
+        ],
+        [
+          "var(--framer-font-family)",
+          2
+        ],
+        [
+          "Inter, Inter Placeholder, sans-serif",
+          2
+        ],
+        [
+          "\"PP Neue Montreal Regular\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Book\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Medium\"",
+          1
+        ],
+        [
+          "\"OT Neue Montreal Medium Extra Squeezed\"",
+          1
+        ],
+        [
+          "\"Supria-Sans-Web-Medium-Italic ¶\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold Italic\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Italic\"",
+          1
+        ],
+        [
+          "\"Supria Sans Regular\"",
+          1
+        ]
+      ],
+      "keyframes": [],
+      "motion_rules": [
+        "opacity 0.4s ease-out"
+      ]
+    },
+    {
+      "url": "https://www.shelf.im/data-rights",
+      "status": "rendered",
+      "title": "Your Data Rights",
+      "copy": [
+        "Your data should work for you.",
+        "Shelf brings information from across your digital life into one place so it can help you understand yourself and power experiences you choose.",
+        "You decide what to add, which services to connect and what you choose to make public.",
+        "Check out our",
+        "Privacy Policy",
+        "&",
+        "Terms of Service",
+        ".",
+        "Source:",
+        "Youth for Our Data Future Initiative",
+        "You choose what comes into your Shelf",
+        "You can add information manually or connect accounts from other services.",
+        "Your Shelf may include:",
+        "Information you provide, such as your profile, preferences and content you add",
+        "Activity from services you choose to connect",
+        "Insights or inferences Shelf generates about your preferences and characteristics",
+        "Shelf uses your information to serve you",
+        "How we protect your information",
+        "Building toward more precise control",
+        "How does koodos, the creators of Shelf, advocate for data rights?",
+        "Beyond building Shelf, we've worked with coalitions at the",
+        "forefront of developments",
+        "around how to protect consumer data rights, including by supporting efforts to work with",
+        "policymakers",
+        "and alliances that advocate for data rights. We are also founding members of the",
+        "Data Transfer Initiative",
+        "and signatories of the",
+        "Inspired Internet Pledge",
+        "and engage with our users and other members of the online community to work toward a safer and healthier Internet for everyone."
+      ],
+      "controls": [
+        {
+          "label": "Privacy Policy",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "./privacy-policy"
+        },
+        {
+          "label": "Terms of Service",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "./terms-of-service"
+        },
+        {
+          "label": "Youth for Our Data Future Initiative",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.instagram.com/p/CzEZAE1sZYc/"
+        },
+        {
+          "label": "forefront of developments",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.w3.org/press-releases/2023/w3c-le-launched/#koodos:~:text=Standards%2C%20Huawei%20Corporation-,Koodos%20Labs,-%22For%20nearly%20three"
+        },
+        {
+          "label": "policymakers",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://www.codepolicy.org/"
+        },
+        {
+          "label": "Data Transfer Initiative",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://dtinit.org/"
+        },
+        {
+          "label": "Inspired Internet Pledge",
+          "kind": "a",
+          "class": "framer-text framer-styles-preset-1wicq5s",
+          "href": "https://inspiredinternet.org/"
+        }
+      ],
+      "images": [],
+      "internal_routes": [
+        "/privacy-policy",
+        "/terms-of-service"
+      ],
+      "inline_css_bytes": 150168,
+      "css_colors": [
+        [
+          "#000",
+          37
+        ],
+        [
+          "#6149f3",
+          2
+        ],
+        [
+          "#fff",
+          2
+        ],
+        [
+          "#1a1e28",
+          2
+        ],
+        [
+          "#111",
+          2
+        ],
+        [
+          "#dbf349",
+          1
+        ],
+        [
+          "#fefffa",
+          1
+        ],
+        [
+          "#09f",
+          1
+        ],
+        [
+          "rgba(34, 34, 34, 0.8)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.1)",
+          1
+        ],
+        [
+          "rgba(0, 0, 0, 0.05)",
+          1
+        ],
+        [
+          "rgba(255, 255, 255, 0.15)",
+          1
+        ],
+        [
+          "rgb(254, 255, 250)",
+          1
+        ]
+      ],
+      "font_families": [
+        [
+          "\"Inter\"",
+          127
+        ],
+        [
+          "\"Inter Display\"",
+          126
+        ],
+        [
+          "\"Inter Variable\"",
+          14
+        ],
+        [
+          "'Be Vietnam Pro'",
+          6
+        ],
+        [
+          "var(--framer-code-font-family,var(--framer-font-family,Inter, Inter Placeholder, sans-serif))",
+          3
+        ],
+        [
+          "\"Supria-Sans-Web-Cond-Bold ¶\"",
+          2
+        ],
+        [
+          "var(--font-family)",
+          2
+        ],
+        [
+          "var(--framer-font-family)",
+          2
+        ],
+        [
+          "Inter, Inter Placeholder, sans-serif",
+          2
+        ],
+        [
+          "\"PP Neue Montreal Regular\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Book\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Medium\"",
+          1
+        ],
+        [
+          "\"OT Neue Montreal Medium Extra Squeezed\"",
+          1
+        ],
+        [
+          "\"Supria-Sans-Web-Medium-Italic ¶\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Bold Italic\"",
+          1
+        ],
+        [
+          "\"PP Neue Montreal Italic\"",
+          1
+        ],
+        [
+          "\"Supria Sans Regular\"",
+          1
+        ]
+      ],
+      "keyframes": [],
+      "motion_rules": [
+        "opacity 0.4s ease-out"
+      ]
+    },
+    {
+      "url": "https://www.shelf.im/minpriv",
+      "status": "rendered",
+      "title": "min on Shelf",
+      "copy": [
+        "shelf.im/minpriv",
+        "min",
+        "join me on Shelf",
+        "Connect your platforms.",
+        "Discover your taste. See the reflection.",
+        "Download Shelf",
+        "Download the app & start seeing your taste."
+      ],
+      "controls": [
+        {
+          "label": "Download Shelf",
+          "kind": "button",
+          "class": "download-btn svelte-1mnz4rt",
+          "href": ""
+        }
+      ],
+      "images": [
+        {
+          "alt": "Avatar for min",
+          "src": "https://imagedelivery.net/denlYHVO222xtJr2VtBBrg/0b050afd-320a-4eed-5fe4-4bde23bc2f00/mini",
+          "class": "avatar svelte-1b44m8y"
+        },
+        {
+          "alt": "Shelf logo",
+          "src": "https://www.shelf.im/assets/img/shelf-v2-logo-primary.png",
+          "class": ""
+        }
+      ],
+      "internal_routes": [
+        "/"
+      ],
+      "inline_css_bytes": 0,
+      "css_colors": [],
+      "font_families": [],
+      "keyframes": [],
+      "motion_rules": []
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#a3a3a3" />
+    <meta name="description" content="A listening dashboard for Spotify listeners who track their music with Last.fm." />
+    <title>Room</title>
+    <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+    <link id="themeStylesheet" rel="stylesheet" href="./styles.css" />
+    <script>
+      try {
+        var __roomTheme = localStorage.getItem("room-theme") || "grey";
+        var __themeHref = { pink: "./themes/pink.css", green: "./themes/green.css", red: "./themes/red.css" }[__roomTheme];
+        if (__themeHref) document.getElementById("themeStylesheet").href = __themeHref;
+      } catch (e) {}
+    </script>
+    <script src="./config.js"></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="paper">
+      <header class="topbar">
+        <a class="wordmark" href="#overview" aria-label="Room home">
+          <svg class="wordmark-logo" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="var(--ink)"/><circle cx="16" cy="16" r="11" fill="none" stroke="rgb(255 255 255 / 25%)" stroke-width="1"/><circle cx="16" cy="16" r="8" fill="none" stroke="rgb(255 255 255 / 25%)" stroke-width="1"/><circle cx="16" cy="16" r="4.6" fill="var(--pink)"/><circle cx="16" cy="16" r="1.4" fill="var(--white)"/></svg>
+          <span>room</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Dashboard sections">
+          <button class="nav-link is-active" type="button" data-view="overview"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>Overview</button>
+          <button class="nav-link" type="button" data-view="tracks"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>Tracks</button>
+          <button class="nav-link" type="button" data-view="artists"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"></circle><path d="M2.8 20c.4-3.7 2.4-5.7 6.2-5.7s5.8 2 6.2 5.7M16 5.3a3.3 3.3 0 0 1 0 6.3M17.1 14.6c2.6.5 4 2.2 4.2 5.1"></path></svg>Artists</button>
+          <button class="nav-link" type="button" data-view="activity"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19.5h18M5 16V9m5 7V4m5 12v-5m5 5V7"></path></svg>Activity</button>
+        </nav>
+
+        <div class="top-actions">
+          <span class="theme-switch" role="group" aria-label="Color theme">
+            <button class="theme-dot" type="button" data-theme="pink" style="background:#ed78bb" aria-label="Pink theme" title="Pink"></button>
+            <button class="theme-dot is-active" type="button" data-theme="grey" style="background:#939393" aria-label="Grey theme" title="Grey"></button>
+            <button class="theme-dot" type="button" data-theme="green" style="background:#78ed96" aria-label="Green theme" title="Green"></button>
+            <button class="theme-dot" type="button" data-theme="red" style="background:#ed7880" aria-label="Red theme" title="Red"></button>
+          </span>
+          <div class="settings-wrap">
+            <button class="icon-button" id="settingsButton" type="button" aria-label="Settings" aria-expanded="false" title="Settings">
+              <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2.7v2.7M12 18.6v2.7M2.7 12h2.7M18.6 12h2.7M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"></path></svg>
+            </button>
+            <div class="settings-menu" id="settingsMenu" hidden>
+              <p class="settings-title">SETTINGS</p>
+              <span class="connection-label" id="connectionLabel"><i></i> Preview mode</span>
+              <button class="pill-button pill-dark" id="connectButton" type="button">Log in with Spotify <span aria-hidden="true">↗</span></button>
+              <button class="text-button disconnect-button" id="disconnectButton" type="button" hidden>Disconnect</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="heroTitle">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-dot"></span><span id="heroKicker">YOUR LISTENING, IN FULL COLOR</span></p>
+            <h1 id="heroTitle">Your music<br />has a <em>story.</em></h1>
+            <div class="hero-bottom">
+              <p id="heroDescription">A little room for the songs you keep coming back to.</p>
+              <span class="hero-stamp" id="dataStamp">SAMPLE<br />LISTENING DATA</span>
+            </div>
+          </div>
+          <div class="hero-art" aria-label="Decorative animated vinyl record">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="vinyl">
+              <span class="vinyl-label"><span>side<br />A</span></span>
+            </div>
+          <div class="sound-wave" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <span class="art-note note-one">♫</span>
+            <span class="art-note note-two">♪</span>
+            <div class="mini-now-playing" id="miniNowPlaying" aria-live="polite">
+              <span class="mini-status-dot"></span>
+              <span class="mini-copy"><small id="miniTrackState">YOUR ROOM IS READY</small><strong id="miniTrackName">A little more you</strong><span id="miniTrackArtist">Connect Spotify to tune in</span></span>
+              <span class="mini-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </div>
+          </div>
+          <span class="hero-index">NO. 01 &nbsp; / &nbsp; YOUR PERSONAL MUSIC DIARY</span>
+        </section>
+
+        <section class="workspace" aria-label="Listening insights">
+          <div class="section-toolbar">
+            <div>
+              <p class="eyebrow toolbar-eyebrow">THE LAST LITTLE WHILE</p>
+              <h2 id="sectionTitle">A portrait in plays</h2>
+            </div>
+            <div class="toolbar-actions">
+              <button class="text-button clear-history" id="clearHistoryButton" type="button" hidden>Clear import</button>
+              <div class="range-switch" role="group" aria-label="Top items time range">
+                <button type="button" data-range="day">24 hours</button>
+                <button class="is-selected" type="button" data-range="week">7 days</button>
+                <button type="button" data-range="month">1 month</button>
+                <button type="button" data-range="year">1 year</button>
+                <button type="button" data-range="all_time" hidden>All history</button>
+              </div>
+              <button class="icon-button" id="refreshButton" type="button" aria-label="Refresh Last.fm data" title="Refresh data">↻</button>
+            </div>
+          </div>
+
+          <div class="demo-ribbon" id="demoRibbon">
+            <span class="ribbon-icon" aria-hidden="true">✳</span>
+            <p><strong>This is a little demo.</strong> Link Spotify on Last.fm to collect your scrobbles, or import your Spotify listening-history export for lifetime insights.</p>
+            <button class="text-button" id="ribbonConnect" type="button">Make it yours <span aria-hidden="true">↗</span></button>
+          </div>
+
+          <div class="notice" id="notice" role="status" hidden></div>
+          <div id="screenContent" aria-live="polite"></div>
+
+          <div class="import-strip">
+            <div class="import-mark" aria-hidden="true">↳</div>
+            <div class="import-copy">
+              <strong>Have years of listening history?</strong>
+              <span>Drop in Spotify's <a href="https://www.spotify.com/account/privacy/" target="_blank" rel="noreferrer">JSON account export ↗</a> for lifetime patterns, listening time, and personal records.</span>
+            </div>
+            <button class="pill-button pill-outline" id="importButton" type="button">Import history <span aria-hidden="true">↑</span></button>
+            <input id="historyFiles" type="file" accept=".json,application/json" multiple hidden />
+          </div>
+
+          <footer class="page-footer">
+            <span>MADE FOR THE MUSIC YOU MAKE YOURS</span>
+            <span>YOUR IMPORTED HISTORY STAYS IN THIS BROWSER</span>
+            <a href="https://open.spotify.com/" target="_blank" rel="noreferrer">OPEN SPOTIFY ↗</a>
+          </footer>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="connect-dialog" id="connectDialog" aria-labelledby="dialogTitle">
+      <form method="dialog" class="dialog-close-row">
+        <button class="dialog-close" aria-label="Close setup">×</button>
+      </form>
+      <div class="dialog-inner">
+        <p class="eyebrow dialog-eyebrow"><span class="eyebrow-dot"></span> ONE QUICK SETUP</p>
+        <h2 id="dialogTitle">Bring your<br /><em>listening</em> in.</h2>
+        <p class="dialog-intro">You need a Last.fm account. Link the Spotify account you already use in Last.fm settings; Last.fm records your listens while Room reads those scrobbles for your stats.</p>
+        <div class="spotify-ready" id="spotifyReady">
+          <span class="ready-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5a11 11 0 0 1 14 1.5M6.5 16a8 8 0 0 1 10.5 1M8.5 19a4.4 4.4 0 0 1 6 .4"></path><circle cx="12" cy="12" r="10"></circle></svg></span>
+          <span id="spotifyReadyText">First connect Spotify on Last.fm, then return here with your Last.fm username.</span>
+        </div>
+        <a class="pill-button pill-dark dialog-connect" id="lastfmSpotifyLogin" href="https://www.last.fm/settings/applications" target="_blank" rel="noopener noreferrer">Log in with Spotify <span aria-hidden="true">↗</span></a>
+        <p class="field-help lastfm-handoff-note">Last.fm opens in another tab and handles the Spotify link there. Come back to this page and enter your Last.fm username; Last.fm does not send this site an automatic return redirect.</p>
+        <label class="field-label" for="lastfmUsername">Your Last.fm username</label>
+        <input id="lastfmUsername" class="client-id-input" type="text" inputmode="text" autocomplete="username" spellcheck="false" placeholder="Last.fm username" />
+        <button class="pill-button pill-dark dialog-connect" id="loadLastfmButton" type="button">Show my listening stats <span aria-hidden="true">↗</span></button>
+        <details class="owner-setup" id="ownerSetup">
+          <summary>Website owner setup</summary>
+          <p class="owner-explainer">The website owner needs one free Last.fm API key so this page can read public listening stats. Visitors do not need developer accounts, API keys, or Spotify Premium.</p>
+          <label class="field-label" for="lastfmApiKey">Last.fm API key</label>
+          <input id="lastfmApiKey" class="client-id-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Owner: paste the public API key" />
+          <p class="field-help">Use an API key only; never enter an API secret. For a shared site, set it in config.js.</p>
+          <div class="setup-steps">
+            <p>Get the website's free API key from Last.fm:</p>
+            <p><a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener noreferrer">Last.fm API account ↗</a></p>
+          </div>
+        </details>
+        <p class="dialog-footnote">Last.fm collects qualifying listens after Spotify is linked there. If scrobbles stop appearing, reconnect Spotify in Last.fm settings; Spotify now requires this about every six months. This page reads public Last.fm scrobbles; it never receives your Spotify password or session cookies. Your Last.fm profile must be public.</p>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
