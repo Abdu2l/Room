@@ -1100,6 +1100,7 @@
     if (state.view === "activity") content.innerHTML = activityMarkup(data);
     bindDynamicActions();
     hydrateArtworkImages();
+    moveNavIndicator();
   }
 
   function syncThemeColor() {
@@ -1124,6 +1125,16 @@
     const button = $("#settingsButton");
     if (menu && !menu.hidden) menu.hidden = true;
     if (button) button.setAttribute("aria-expanded", "false");
+  }
+
+  function moveNavIndicator() {
+    const nav = $(".main-nav");
+    if (!nav) return;
+    const active = $(".nav-link.is-active", nav);
+    const pill = $(".nav-indicator", nav);
+    if (!active || !pill) return;
+    pill.style.width = active.offsetWidth + "px";
+    pill.style.transform = "translateX(" + active.offsetLeft + "px)";
   }
 
   function bindDynamicActions() {
@@ -1273,6 +1284,12 @@
     $$(".theme-dot").forEach((button) => button.addEventListener("click", () => setTheme(button.dataset.theme)));
     const themeLink = $("#themeStylesheet");
     if (themeLink) themeLink.addEventListener("load", syncThemeColor);
+    let navResizeTimer = 0;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(navResizeTimer);
+      navResizeTimer = window.setTimeout(moveNavIndicator, 120);
+    });
+    if (document.fonts?.ready) document.fonts.ready.then(() => moveNavIndicator()).catch(() => {});
     const settingsButton = $("#settingsButton");
     const settingsMenu = $("#settingsMenu");
     if (settingsButton && settingsMenu) {
