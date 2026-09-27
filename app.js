@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=21",
-    pink: "./themes/pink.css?v=21",
-    green: "./themes/green.css?v=21",
-    red: "./themes/red.css?v=21"
+    grey: "./styles.css?v=22",
+    pink: "./themes/pink.css?v=22",
+    green: "./themes/green.css?v=22",
+    red: "./themes/red.css?v=22"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -81,6 +81,7 @@
     genreKey: "",
     genreStatus: "idle",
     genres: [],
+    genreLinks: [],
     shareFormat: "story",
     shareTrack: null,
     shareCanvas: null,
@@ -1096,6 +1097,7 @@
     try {
       const artists = state.lastfmTopArtists.slice(0, 14);
       const weights = new Map();
+      const tagArtists = new Map();
       await mapWithConcurrency(artists, 4, async (artist) => {
         let tags = [];
         try {
@@ -1105,14 +1107,28 @@
         }
         tags.slice(0, 4).filter((tag) => !JUNK_TAGS.has(tag)).slice(0, 3).forEach((tag) => {
           weights.set(tag, (weights.get(tag) || 0) + (artist.plays || 1));
+          if (!tagArtists.has(tag)) tagArtists.set(tag, []);
+          const carriers = tagArtists.get(tag);
+          if (carriers.length < 3 && !carriers.includes(artist.name)) carriers.push(artist.name);
         });
       });
       const bubbles = Array.from(weights.entries())
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
         .slice(0, 14);
+      const links = [];
+      for (let i = 0; i < bubbles.length; i++) {
+        for (let j = i + 1; j < bubbles.length; j++) {
+          const a = tagArtists.get(bubbles[i].name) || [];
+          const b = tagArtists.get(bubbles[j].name) || [];
+          const shared = a.filter((name) => b.includes(name)).length;
+          if (shared) links.push({ a: bubbles[i].name, b: bubbles[j].name, strength: shared });
+        }
+      }
+      links.sort((x, y) => y.strength - x.strength);
       if (state.genreKey !== key) return;
       state.genres = bubbles;
+      state.genreLinks = links.slice(0, 10);
       state.genreStatus = bubbles.length ? "ready" : "empty";
     } catch {
       if (state.genreKey !== key) return;
@@ -1160,8 +1176,17 @@
     return hexToRgba(ink, alphas[Math.min(index, alphas.length) - 1] ?? 0.42);
   }
 
-  function galaxyBubblesMarkup(bubbles, note) {
+  function galaxyBubblesMarkup(bubbles, note, links) {
     const placed = packBubbles(bubbles, 1000, 625);
+    const byName = new Map(placed.map((item) => [item.name, item]));
+    const wires = (Array.isArray(links) ? links : []).map((link) => {
+      const a = byName.get(link.a);
+      const b = byName.get(link.b);
+      if (!a || !b) return "";
+      return '<line x1="' + a.x.toFixed(1) + '" y1="' + a.y.toFixed(1) +
+        '" x2="' + b.x.toFixed(1) + '" y2="' + b.y.toFixed(1) +
+        '" opacity="' + (0.25 + 0.2 * Math.min(2, link.strength - 1)) + '"/>';
+    }).join("");
     const max = Math.max(1, ...bubbles.map((item) => item.value));
     const dots = placed.map((item, index) => {
       const left = ((item.x - item.r) / 1000) * 100;
@@ -1176,7 +1201,7 @@
       '<p>' + escapeHtml(note) + '</p></div>' +
       '<span class="eyebrow">TOP ' + bubbles.length + '</span></div>' +
       '<p class="galaxy-caption">Tap a flavor to spotlight it.</p>' +
-      '<div class="galaxy-wrap">' + dots + '</div></section>';
+      '<div class="galaxy-wrap"><svg class="galaxy-lines" viewBox="0 0 1000 625" preserveAspectRatio="none" aria-hidden="true">' + wires + '</svg>' + dots + '</div></section>';
   }
 
   function galaxyMarkup(data) {
@@ -1185,7 +1210,7 @@
         name: (artist.genres || ["top artist"])[0],
         value: 5 - index
       }));
-      return galaxyBubblesMarkup(demo, "Illustrative preview flavors · fictional sample");
+      return galaxyBubblesMarkup(demo, "Illustrative preview flavors · fictional sample", []);
     }
     if (state.mode !== "lastfm") {
       return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
@@ -1205,7 +1230,7 @@
         '<p class="empty-copy">Mapping your universe. This takes a few seconds the first time.</p></section>';
     }
     if (state.genreStatus === "ready" && state.genres.length) {
-      return galaxyBubblesMarkup(state.genres, "Sized by scrobbles behind each flavor · " + RANGE_LABEL[state.range]);
+      return galaxyBubblesMarkup(state.genres, "Sized by scrobbles behind each flavor · " + RANGE_LABEL[state.range], state.genreLinks);
     }
     return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
       '<p>No genre tags found for this range yet.</p></div></div>' +
@@ -1351,6 +1376,7 @@
     moveNavIndicator();
     moveRangeIndicator();
     animateStatCounts();
+    initGalaxyTilt();
   }
 
   function syncThemeColor() {
@@ -1804,6 +1830,50 @@
     if (!active || !pill) return;
     pill.style.width = active.offsetWidth + "px";
     pill.style.transform = "translateX(" + active.offsetLeft + "px)";
+  }
+
+  function initGalaxyTilt() {
+    const wrap = $(".galaxy-wrap");
+    if (!wrap || wrap.dataset.tilt) return;
+    wrap.dataset.tilt = "1";
+    let reduceMotion = false;
+    try {
+      reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch { /* Keep the tilt when motion settings cannot be read. */ }
+    if (reduceMotion) return;
+    const panel = wrap.closest(".panel") || wrap;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let frame = 0;
+    const loop = () => {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      if (Math.abs(targetX - currentX) < 0.002 && Math.abs(targetY - currentY) < 0.002 && !targetX && !targetY) {
+        wrap.style.transform = "";
+        frame = 0;
+        return;
+      }
+      wrap.style.transform = "perspective(1100px) rotateX(" + (-currentY * 7).toFixed(2) +
+        "deg) rotateY(" + (currentX * 9).toFixed(2) + "deg)";
+      frame = requestAnimationFrame(loop);
+    };
+    const kick = () => {
+      if (!frame) frame = requestAnimationFrame(loop);
+    };
+    panel.addEventListener("mousemove", (event) => {
+      const box = wrap.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      targetX = ((event.clientX - box.left) / box.width - 0.5) * 2;
+      targetY = ((event.clientY - box.top) / box.height - 0.5) * 2;
+      kick();
+    });
+    panel.addEventListener("mouseleave", () => {
+      targetX = 0;
+      targetY = 0;
+      kick();
+    });
   }
 
   function updateGalaxyCaption(wrap, bubble) {
