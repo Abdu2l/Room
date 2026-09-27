@@ -735,7 +735,7 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .artist-card:nth-child(5) { animation-delay: 280ms; }
 .artist-art {
   display: grid;
-  width: min(100%, 112px);
+  width: min(100%, 132px);
   aspect-ratio: 1;
   place-items: center;
   margin: 0 auto 12px;
@@ -1032,7 +1032,7 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
   .lower-grid { gap: 8px; }
   .panel-heading h3 { font-size: 22px; }
   .artist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 15px; }
-  .artist-art { width: min(100%, 76px); }
+  .artist-art { width: min(100%, 86px); }
   .artist-name { font-size: 10px; }
   .track-row { grid-template-columns: 20px 35px minmax(0, 1fr) auto; gap: 8px; }
   .cover-art { width: 34px; height: 34px; }
@@ -1106,14 +1106,14 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .artist-art::after {
   background:
     radial-gradient(circle at 32% 26%, rgb(255 255 255 / 20%), rgb(255 255 255 / 3%) 36%, transparent 58%),
-    radial-gradient(circle at 50% 50%, transparent 60%, rgb(0 0 0 / 34%) 100%);
+    radial-gradient(circle at 50% 50%, transparent 66%, rgb(0 0 0 / 20%) 100%);
   animation: orb-gloss 6s ease-in-out infinite;
 }
 .artist-card:nth-child(2) .artist-art::after { animation-delay: -1.2s; }
 .artist-card:nth-child(3) .artist-art::after { animation-delay: -2.4s; }
 .artist-card:nth-child(4) .artist-art::after { animation-delay: -3.6s; }
 .artist-card:nth-child(5) .artist-art::after { animation-delay: -4.8s; }
-@keyframes orb-rock { 0%, 100% { transform: rotateY(-18deg) rotateX(4deg); } 50% { transform: rotateY(18deg) rotateX(-4deg); } }
+@keyframes orb-rock { 0%, 100% { transform: rotateY(-13deg) rotateX(3deg); } 50% { transform: rotateY(13deg) rotateX(-3deg); } }
 @keyframes orb-gloss {
   0%, 100% { transform: translateX(-14%); opacity: .8; }
   50% { transform: translateX(14%); opacity: 1; }
