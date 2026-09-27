@@ -1124,13 +1124,14 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
   50% { transform: translateX(14%); opacity: 1; }
 }
 
-.wordmark-logo { width: 30px; height: 30px; animation: logo-spin 12s linear infinite; }
-@keyframes logo-spin { to { transform: rotate(360deg); } }
+.wordmark { perspective: 500px; }
+.wordmark-logo { width: 30px; height: 30px; transform-style: preserve-3d; animation: logo-rock 5s ease-in-out infinite; }
+@keyframes logo-rock { 0%, 100% { transform: rotateY(-22deg) translateY(0); } 50% { transform: rotateY(22deg) translateY(-2px); } }
 
 @media (min-width: 901px) {
   .topbar { min-height: 102px; }
-  .wordmark { gap: 11px; font-size: 13px; }
-  .wordmark-logo { width: 36px; height: 36px; }
+  .wordmark { gap: 11px; font-size: 14px; }
+  .wordmark-logo { width: 46px; height: 46px; }
   .nav-link { padding: 13px 18px; font-size: 16px; }
   .nav-icon { width: 16px; height: 16px; }
   .top-actions .theme-dot { width: 22px; height: 22px; }

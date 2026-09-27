@@ -1329,6 +1329,11 @@
       } catch { /* The user can refresh from Last.fm if local cache data is invalid. */ }
     }
     wireEvents();
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.querySelectorAll(".wordmark-logo animateMotion").forEach((node) => node.remove());
+      }
+    } catch { /* Keep the logo animation when motion settings cannot be read. */ }
     let savedTheme = "grey";
     try { savedTheme = localStorage.getItem(THEME_KEY) || "grey"; }
     catch { /* Fall back to the default grey theme. */ }
