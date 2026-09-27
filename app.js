@@ -1105,7 +1105,7 @@
       const left = ((item.x - item.r) / 1000) * 100;
       const top = ((item.y - item.r) / 625) * 100;
       const size = (item.r * 2 / 1000) * 100;
-      return '<div class="bubble" style="left:' + left.toFixed(2) + '%;top:' + top.toFixed(2) +
+      return '<div class="bubble" data-name="' + escapeHtml(item.name) + '" data-value="' + item.value + '" style="left:' + left.toFixed(2) + '%;top:' + top.toFixed(2) +
         '%;width:' + size.toFixed(2) + '%;aspect-ratio:1;background:' + bubbleColor(index) +
         ';animation-delay:' + (index * 70) + 'ms"><span><strong>' + escapeHtml(item.name) +
         '</strong><small>' + formatNumber(item.value) + (max > 20 ? " plays" : "") + '</small></span></div>';
@@ -1113,6 +1113,7 @@
     return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
       '<p>' + escapeHtml(note) + '</p></div>' +
       '<span class="eyebrow">TOP ' + bubbles.length + '</span></div>' +
+      '<p class="galaxy-caption">Tap a flavor to spotlight it.</p>' +
       '<div class="galaxy-wrap">' + dots + '</div></section>';
   }
 
@@ -1571,6 +1572,16 @@
     pill.style.transform = "translateX(" + active.offsetLeft + "px)";
   }
 
+  function updateGalaxyCaption(wrap, bubble) {
+    const caption = wrap.closest(".panel")?.querySelector(".galaxy-caption");
+    if (!caption) return;
+    if (!bubble) {
+      caption.textContent = "Tap a flavor to spotlight it.";
+      return;
+    }
+    caption.textContent = (bubble.dataset.name || "Flavor") + " · " + formatNumber(Number(bubble.dataset.value) || 0) + " plays behind it";
+  }
+
   function bindDynamicActions() {
     $$("[data-view]", $("#screenContent")).forEach((button) => {
       button.addEventListener("click", () => {
@@ -1759,6 +1770,30 @@
     const shareDialog = $("#shareDialog");
     if (shareDialog) shareDialog.addEventListener("click", (event) => {
       if (event.target === shareDialog) shareDialog.close();
+    });
+    const screen = $("#screenContent");
+    if (screen) screen.addEventListener("click", (event) => {
+      const wrap = event.target.closest(".galaxy-wrap");
+      if (!wrap) {
+        document.querySelectorAll(".galaxy-wrap.has-focus").forEach((focused) => {
+          focused.classList.remove("has-focus");
+          focused.querySelectorAll(".bubble.is-focus").forEach((node) => node.classList.remove("is-focus"));
+          updateGalaxyCaption(focused, null);
+        });
+        return;
+      }
+      const bubble = event.target.closest(".bubble");
+      if (!bubble) return;
+      const was = bubble.classList.contains("is-focus");
+      wrap.querySelectorAll(".bubble.is-focus").forEach((node) => node.classList.remove("is-focus"));
+      if (was) {
+        wrap.classList.remove("has-focus");
+        updateGalaxyCaption(wrap, null);
+      } else {
+        wrap.classList.add("has-focus");
+        bubble.classList.add("is-focus");
+        updateGalaxyCaption(wrap, bubble);
+      }
     });
     const themeLink = $("#themeStylesheet");
     if (themeLink) themeLink.addEventListener("load", syncThemeColor);
