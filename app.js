@@ -703,6 +703,16 @@
     }
   }
 
+  function estimateLastfmTime() {
+    if (!state.lastfmTotalCount) return "≈ 0 MIN";
+    return "≈ " + formatDuration(state.lastfmTotalCount * 3.5 * 60000).toUpperCase();
+  }
+
+  function historyTime() {
+    const rows = currentHistoryRows() || [];
+    return formatDuration(rows.reduce((sum, row) => sum + (row.msPlayed || 0), 0)).toUpperCase();
+  }
+
   function currentHistoryRows() {
     if (!state.history) return null;
     const cutoff = state.range === "all_time" ? -Infinity : Date.now() - RANGE_MS[state.range];
@@ -1228,8 +1238,8 @@
         ? "A little room for the songs you have kept close over time."
         : "A little room for the songs you keep coming back to.";
     $("#dataStamp").innerHTML = state.mode === "lastfm"
-      ? "LAST.FM<br />" + formatNumber(state.lastfmTotalCount) + " SCROBBLES"
-      : state.history ? "HISTORY<br />" + formatNumber(state.history.length) + " ENTRIES" : "SAMPLE<br />LISTENING DATA";
+      ? "LAST.FM<br />" + formatNumber(state.lastfmTotalCount) + " SCROBBLES<br />" + estimateLastfmTime()
+      : state.history ? "HISTORY<br />" + formatNumber(state.history.length) + " ENTRIES<br />" + historyTime() : "SAMPLE<br />LISTENING DATA";
     $("#clearHistoryButton").hidden = !state.history;
     $$("[data-range]").forEach((button) => {
       button.hidden = button.dataset.range === "all_time" && !state.history && state.mode !== "lastfm";
