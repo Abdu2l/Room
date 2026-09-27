@@ -1101,6 +1101,7 @@
     bindDynamicActions();
     hydrateArtworkImages();
     moveNavIndicator();
+    moveRangeIndicator();
   }
 
   function syncThemeColor() {
@@ -1125,6 +1126,16 @@
     const button = $("#settingsButton");
     if (menu && !menu.hidden) menu.hidden = true;
     if (button) button.setAttribute("aria-expanded", "false");
+  }
+
+  function moveRangeIndicator() {
+    const group = $(".range-switch");
+    if (!group) return;
+    const active = $("[data-range].is-selected", group);
+    const pill = $(".range-indicator", group);
+    if (!active || !pill) return;
+    pill.style.width = active.offsetWidth + "px";
+    pill.style.transform = "translateX(" + active.offsetLeft + "px)";
   }
 
   function moveNavIndicator() {
@@ -1287,9 +1298,9 @@
     let navResizeTimer = 0;
     window.addEventListener("resize", () => {
       window.clearTimeout(navResizeTimer);
-      navResizeTimer = window.setTimeout(moveNavIndicator, 120);
+      navResizeTimer = window.setTimeout(() => { moveNavIndicator(); moveRangeIndicator(); }, 120);
     });
-    if (document.fonts?.ready) document.fonts.ready.then(() => moveNavIndicator()).catch(() => {});
+    if (document.fonts?.ready) document.fonts.ready.then(() => { moveNavIndicator(); moveRangeIndicator(); }).catch(() => {});
     const settingsButton = $("#settingsButton");
     const settingsMenu = $("#settingsMenu");
     if (settingsButton && settingsMenu) {
@@ -1313,6 +1324,7 @@
       if (button.dataset.range === state.range) return;
       state.range = button.dataset.range;
       $$("[data-range]").forEach((rangeButton) => rangeButton.classList.toggle("is-selected", rangeButton === button));
+      moveRangeIndicator();
       if (state.mode === "lastfm") loadLastfmData();
       else render();
     }));
