@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=17",
-    pink: "./themes/pink.css?v=17",
-    green: "./themes/green.css?v=17",
-    red: "./themes/red.css?v=17"
+    grey: "./styles.css?v=18",
+    pink: "./themes/pink.css?v=18",
+    green: "./themes/green.css?v=18",
+    red: "./themes/red.css?v=18"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -1557,8 +1557,35 @@
     }
     ctx.fillStyle = theme.muted;
     ctx.font = "600 28px " + body;
-    ctx.fillText("abdu2l.github.io/Room", W / 2, H - 56);
+    const trackFoot = "abdu2l.github.io/Room";
+    const trackFootWidth = ctx.measureText(trackFoot).width;
+    const trackMarkR = 20;
+    const trackFootX = W / 2 - (trackFootWidth + 16 + trackMarkR * 2) / 2;
+    drawSpotifyMark(ctx, trackFootX + trackMarkR, H - 56 - 9, trackMarkR, theme.ink, theme.paper);
+    ctx.fillStyle = theme.muted;
+    ctx.textAlign = "left";
+    ctx.fillText(trackFoot, trackFootX + trackMarkR * 2 + 16, H - 56);
     return canvas;
+  }
+
+  function drawSpotifyMark(ctx, cx, cy, radius, bg, fg) {
+    ctx.save();
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = fg;
+    ctx.lineCap = "round";
+    for (let row = 0; row < 3; row++) {
+      const y = cy - radius * 0.28 + row * radius * 0.3;
+      const half = radius * (0.58 - row * 0.1);
+      ctx.lineWidth = radius * (0.17 - row * 0.02);
+      ctx.beginPath();
+      ctx.moveTo(cx - half, y);
+      ctx.quadraticCurveTo(cx, y + radius * 0.32, cx + half, y - radius * 0.06);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   async function drawShareCard(format) {
@@ -1677,10 +1704,15 @@
       }
     });
 
-    ctx.fillStyle = theme.muted;
     ctx.font = "600 28px " + body;
-    ctx.textAlign = "center";
-    ctx.fillText("abdu2l.github.io/Room", W / 2, H - 64);
+    const footLabel = "abdu2l.github.io/Room";
+    const footWidth = ctx.measureText(footLabel).width;
+    const markR = 20;
+    const footX = W / 2 - (footWidth + 16 + markR * 2) / 2;
+    drawSpotifyMark(ctx, footX + markR, H - 64 - 9, markR, theme.ink, theme.paper);
+    ctx.fillStyle = theme.muted;
+    ctx.textAlign = "left";
+    ctx.fillText(footLabel, footX + markR * 2 + 16, H - 64);
     return canvas;
   }
 
@@ -1712,6 +1744,16 @@
     if (!dialog) return;
     if (!dialog.open) dialog.showModal();
     refreshSharePreview();
+  }
+
+  function downloadShareBlob(blob) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "room-" + state.shareFormat + "-" + state.range + ".png";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(link.href), 4000);
   }
 
   function shareCanvasBlob() {
@@ -1933,16 +1975,10 @@
         showToast("Nothing to download yet. Wait for the preview.");
         return;
       }
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "room-" + state.shareFormat + "-" + state.range + ".png";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+      downloadShareBlob(blob);
     });
-    const shareNative = $("#shareNative");
-    if (shareNative) shareNative.addEventListener("click", async () => {
+    const shareInstagram = $("#shareInstagram");
+    if (shareInstagram) shareInstagram.addEventListener("click", async () => {
       const blob = await shareCanvasBlob();
       if (!blob) {
         showToast("Nothing to share yet. Wait for the preview.");
@@ -1956,7 +1992,22 @@
           /* The user dismissed the share sheet. */
         }
       } else {
-        showToast("This browser cannot share files. Use Download instead.");
+        downloadShareBlob(blob);
+        showToast("Saved — upload it to your Instagram story.");
+      }
+    });
+    const shareCopy = $("#shareCopy");
+    if (shareCopy) shareCopy.addEventListener("click", async () => {
+      const blob = await shareCanvasBlob();
+      if (!blob) {
+        showToast("Nothing to copy yet. Wait for the preview.");
+        return;
+      }
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        showToast("Copied — paste it straight into your story.");
+      } catch {
+        showToast("Copy is blocked in this browser. Use Download instead.");
       }
     });
     const shareDialog = $("#shareDialog");

@@ -7,16 +7,16 @@
     <meta name="description" content="A listening dashboard for Spotify listeners who track their music with Last.fm." />
     <title>Room</title>
     <link rel="icon" type="image/svg+xml" href="./logo.svg?v=3" />
-    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=17" />
+    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=18" />
     <script>
       try {
         var __roomTheme = localStorage.getItem("room-theme") || "grey";
-        var __themeHref = { pink: "./themes/pink.css?v=17", green: "./themes/green.css?v=17", red: "./themes/red.css?v=17" }[__roomTheme];
+        var __themeHref = { pink: "./themes/pink.css?v=18", green: "./themes/green.css?v=18", red: "./themes/red.css?v=18" }[__roomTheme];
         if (__themeHref) document.getElementById("themeStylesheet").href = __themeHref;
       } catch (e) {}
     </script>
-    <script src="./config.js?v=17"></script>
-    <script src="./app.js?v=17" defer></script>
+    <script src="./config.js?v=18"></script>
+    <script src="./app.js?v=18" defer></script>
   </head>
   <body>
     <div class="paper">
@@ -183,7 +183,8 @@
         <div class="share-preview"><img id="sharePreview" alt="Share card preview" hidden /><span id="shareLoading">Painting your card…</span></div>
         <div class="share-actions">
           <button class="pill-button pill-dark" id="shareDownload" type="button">Download ↓</button>
-          <button class="pill-button pill-outline" id="shareNative" type="button">Share ↗</button>
+          <button class="pill-button pill-dark" id="shareInstagram" type="button">Instagram ↗</button>
+          <button class="pill-button pill-outline" id="shareCopy" type="button">Copy</button>
         </div>
       </div>
     </dialog>
