@@ -6,17 +6,17 @@
     <meta name="theme-color" content="#a3a3a3" />
     <meta name="description" content="A listening dashboard for Spotify listeners who track their music with Last.fm." />
     <title>Room</title>
-    <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link id="themeStylesheet" rel="stylesheet" href="./styles.css" />
+    <link rel="icon" type="image/svg+xml" href="./logo.svg?v=2" />
+    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=6" />
     <script>
       try {
         var __roomTheme = localStorage.getItem("room-theme") || "grey";
-        var __themeHref = { pink: "./themes/pink.css", green: "./themes/green.css", red: "./themes/red.css" }[__roomTheme];
+        var __themeHref = { pink: "./themes/pink.css?v=6", green: "./themes/green.css?v=6", red: "./themes/red.css?v=6" }[__roomTheme];
         if (__themeHref) document.getElementById("themeStylesheet").href = __themeHref;
       } catch (e) {}
     </script>
-    <script src="./config.js"></script>
-    <script src="./app.js" defer></script>
+    <script src="./config.js?v=6"></script>
+    <script src="./app.js?v=6" defer></script>
   </head>
   <body>
     <div class="paper">
