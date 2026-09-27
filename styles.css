@@ -1257,3 +1257,7 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .lower-grid .artist-grid { flex: 1; align-content: center; }
 .lower-grid .track-list { flex: 1; align-content: center; }
 .artist-card { padding: 12px 4px 2px; }
+
+.panel, .stat-card { position: relative; background: linear-gradient(180deg, rgb(255 255 255 / 32%), rgb(255 255 255 / 15%)); }
+.panel::before, .stat-card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background-image: url("./grain.png"); background-size: 200px; opacity: .16; pointer-events: none; }
+.panel > *, .stat-card > * { position: relative; z-index: 1; }
