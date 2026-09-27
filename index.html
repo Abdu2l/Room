@@ -31,6 +31,7 @@
           <button class="nav-link is-active" type="button" data-view="overview"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>Overview</button>
           <button class="nav-link" type="button" data-view="tracks"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>Tracks</button>
           <button class="nav-link" type="button" data-view="artists"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"></circle><path d="M2.8 20c.4-3.7 2.4-5.7 6.2-5.7s5.8 2 6.2 5.7M16 5.3a3.3 3.3 0 0 1 0 6.3M17.1 14.6c2.6.5 4 2.2 4.2 5.1"></path></svg>Artists</button>
+          <button class="nav-link" type="button" data-view="galaxy"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3.4"></circle><circle cx="16.5" cy="14.5" r="2.4"></circle><circle cx="10.5" cy="17.5" r="1.7"></circle></svg>Galaxy</button>
           <button class="nav-link" type="button" data-view="activity"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19.5h18M5 16V9m5 7V4m5 12v-5m5 5V7"></path></svg>Activity</button>
         </nav>
 
@@ -102,6 +103,7 @@
                 <button type="button" data-range="year">1 year</button>
                 <button type="button" data-range="all_time" hidden>All history</button>
               </div>
+              <button class="pill-button pill-outline share-button" id="shareButton" type="button">Share <span aria-hidden="true">↑</span></button>
               <button class="icon-button" id="refreshButton" type="button" aria-label="Refresh Last.fm data" title="Refresh data">↻</button>
             </div>
           </div>
@@ -163,6 +165,25 @@
           </div>
         </details>
         <p class="dialog-footnote">Last.fm collects qualifying listens after Spotify is linked there. If scrobbles stop appearing, reconnect Spotify in Last.fm settings; Spotify now requires this about every six months. This page reads public Last.fm scrobbles; it never receives your Spotify password or session cookies. Your Last.fm profile must be public.</p>
+      </div>
+    </dialog>
+
+    <dialog class="connect-dialog share-dialog" id="shareDialog" aria-labelledby="shareTitle">
+      <form method="dialog" class="dialog-close-row">
+        <button class="dialog-close" aria-label="Close share">×</button>
+      </form>
+      <div class="dialog-inner">
+        <p class="eyebrow dialog-eyebrow"><span class="eyebrow-dot"></span> SHARE YOUR SOUND</p>
+        <h2 id="shareTitle">Pass it<br /><em>around.</em></h2>
+        <div class="share-formats" role="group" aria-label="Card format">
+          <button class="pill-button pill-dark" type="button" data-format="story">Story · 9:16</button>
+          <button class="pill-button pill-outline" type="button" data-format="square">Square · 1:1</button>
+        </div>
+        <div class="share-preview"><img id="sharePreview" alt="Share card preview" hidden /><span id="shareLoading">Painting your card…</span></div>
+        <div class="share-actions">
+          <button class="pill-button pill-dark" id="shareDownload" type="button">Download ↓</button>
+          <button class="pill-button pill-outline" id="shareNative" type="button">Share ↗</button>
+        </div>
       </div>
     </dialog>
 

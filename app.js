@@ -78,6 +78,11 @@
     lastfmTopArtists: [],
     lastfmTotalCount: 0,
     lastfmTruncated: false,
+    genreKey: "",
+    genreStatus: "idle",
+    genres: [],
+    shareFormat: "story",
+    shareCanvas: null,
     noticeTimer: null,
     toastTimer: null
   };
@@ -89,6 +94,24 @@
     return String(value ?? "").replace(/[&<>"']/g, (character) => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     })[character]);
+  }
+
+  function cssVar(name) {
+    try {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    } catch {
+      return "";
+    }
+  }
+
+  function hexToRgba(hex, alpha) {
+    const clean = String(hex || "").trim().replace("#", "");
+    const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+    if (!/^[0-9a-f]{6}$/i.test(full)) return "rgb(40 40 40 / " + alpha + ")";
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
+    return "rgb(" + r + " " + g + " " + b + " / " + alpha + ")";
   }
 
   function iconSvg(name) {
@@ -971,6 +994,145 @@
       artistCards(data.artists, 50) + '</section>';
   }
 
+  const artistTagCache = new Map();
+
+  async function fetchArtistTags(name) {
+    const key = String(name || "").trim().toLocaleLowerCase();
+    if (!key) return [];
+    if (artistTagCache.has(key)) return artistTagCache.get(key);
+    const apiKey = getLastfmApiKey();
+    if (!apiKey) return [];
+    const payload = await lastfmApi("artist.getinfo", "", apiKey, { artist: String(name), autocorrect: 1 });
+    const tags = payload?.artist?.tags?.tag;
+    const list = (Array.isArray(tags) ? tags : tags ? [tags] : [])
+      .map((tag) => String(tag?.name || "").trim().toLocaleLowerCase())
+      .filter(Boolean);
+    artistTagCache.set(key, list);
+    return list;
+  }
+
+  async function loadGenres() {
+    const key = state.lastfmUsername + "|" + state.range;
+    if (state.genreKey === key && (state.genreStatus === "loading" || state.genreStatus === "ready")) return;
+    state.genreKey = key;
+    state.genreStatus = "loading";
+    state.genres = [];
+    try {
+      const artists = state.lastfmTopArtists.slice(0, 14);
+      const weights = new Map();
+      await mapWithConcurrency(artists, 4, async (artist) => {
+        let tags = [];
+        try {
+          tags = await fetchArtistTags(artist.name);
+        } catch {
+          tags = [];
+        }
+        tags.slice(0, 3).forEach((tag) => {
+          weights.set(tag, (weights.get(tag) || 0) + (artist.plays || 1));
+        });
+      });
+      const bubbles = Array.from(weights.entries())
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 14);
+      if (state.genreKey !== key) return;
+      state.genres = bubbles;
+      state.genreStatus = bubbles.length ? "ready" : "empty";
+    } catch {
+      if (state.genreKey !== key) return;
+      state.genreStatus = "error";
+    }
+    if (state.view === "galaxy") render();
+  }
+
+  function packBubbles(items, width, height) {
+    const total = items.reduce((sum, item) => sum + item.value, 0) || 1;
+    const factor = Math.sqrt((0.5 * width * height) / (Math.PI * total));
+    const placed = [];
+    items.forEach((item, index) => {
+      const radius = Math.max(40, Math.sqrt(item.value) * factor);
+      if (!index) {
+        placed.push({ ...item, x: width / 2, y: height / 2, r: radius });
+        return;
+      }
+      let angle = index * 2.39996;
+      let dist = placed[0].r + radius + 10;
+      for (let step = 0; step < 500; step++) {
+        const x = width / 2 + Math.cos(angle) * dist;
+        const y = height / 2 + Math.sin(angle) * dist * 0.72;
+        const fits = x - radius > 4 && x + radius < width - 4 && y - radius > 4 && y + radius < height - 4 &&
+          placed.every((other) => Math.hypot(other.x - x, other.y - y) > other.r + radius + 8);
+        if (fits) {
+          placed.push({ ...item, x, y, r: radius });
+          return;
+        }
+        angle += 0.35;
+        dist += 2.4;
+      }
+      placed.push({ ...item, x: width / 2, y: height / 2, r: radius });
+    });
+    return placed;
+  }
+
+  function bubbleColor(index) {
+    const accent = cssVar("--pink") || "#939393";
+    const ink = cssVar("--ink") || "#1c1c1c";
+    if (!index) return hexToRgba(accent, 0.92);
+    const alphas = [0.82, 0.72, 0.64, 0.58, 0.52, 0.48, 0.44];
+    return hexToRgba(ink, alphas[Math.min(index, alphas.length) - 1] ?? 0.42);
+  }
+
+  function galaxyBubblesMarkup(bubbles, note) {
+    const placed = packBubbles(bubbles, 1000, 625);
+    const max = Math.max(1, ...bubbles.map((item) => item.value));
+    const dots = placed.map((item, index) => {
+      const left = ((item.x - item.r) / 1000) * 100;
+      const top = ((item.y - item.r) / 625) * 100;
+      const size = (item.r * 2 / 1000) * 100;
+      return '<div class="bubble" style="left:' + left.toFixed(2) + '%;top:' + top.toFixed(2) +
+        '%;width:' + size.toFixed(2) + '%;aspect-ratio:1;background:' + bubbleColor(index) +
+        ';animation-delay:' + (index * 70) + 'ms"><span><strong>' + escapeHtml(item.name) +
+        '</strong><small>' + formatNumber(item.value) + (max > 20 ? " plays" : "") + '</small></span></div>';
+    }).join("");
+    return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
+      '<p>' + escapeHtml(note) + '</p></div>' +
+      '<span class="eyebrow">TOP ' + bubbles.length + '</span></div>' +
+      '<div class="galaxy-wrap">' + dots + '</div></section>';
+  }
+
+  function galaxyMarkup(data) {
+    if (state.mode === "demo" && !state.history) {
+      const demo = (data.artists || []).slice(0, 5).map((artist, index) => ({
+        name: (artist.genres || ["top artist"])[0],
+        value: 5 - index
+      }));
+      return galaxyBubblesMarkup(demo, "Illustrative preview flavors · fictional sample");
+    }
+    if (state.mode !== "lastfm") {
+      return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
+        '<p>Genre flavors come from Last.fm tags on your top artists.</p></div></div>' +
+        '<p class="empty-copy">Connect Spotify through Last.fm to map your genre universe.</p></section>';
+    }
+    const key = state.lastfmUsername + "|" + state.range;
+    if (state.genreKey !== key || state.genreStatus === "idle") {
+      loadGenres();
+      return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
+        '<p>Reading tags for your top artists…</p></div></div>' +
+        '<p class="empty-copy">Mapping your universe. This takes a few seconds the first time.</p></section>';
+    }
+    if (state.genreStatus === "loading") {
+      return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
+        '<p>Reading tags for your top artists…</p></div></div>' +
+        '<p class="empty-copy">Mapping your universe. This takes a few seconds the first time.</p></section>';
+    }
+    if (state.genreStatus === "ready" && state.genres.length) {
+      return galaxyBubblesMarkup(state.genres, "Sized by scrobbles behind each flavor · " + RANGE_LABEL[state.range]);
+    }
+    return '<section class="panel"><div class="panel-heading"><div><h3>A galaxy of genres</h3>' +
+      '<p>No genre tags found for this range yet.</p></div></div>' +
+      '<p class="empty-copy">Try another time range. Obscure artists sometimes have no tags on Last.fm.</p></section>';
+  }
+
   function getPeakHour(rows) {
     if (!rows.length) return "";
     const counts = new Array(24).fill(0);
@@ -1039,6 +1201,7 @@
       overview: ["A portrait in plays", "YOUR LISTENING, IN FULL COLOR"],
       tracks: ["The tracks you return to", "THE SONGS THAT STAY"],
       artists: ["The artists in your orbit", "THE VOICES IN YOUR ROOM"],
+      galaxy: ["Your universe of sound", "A GALAXY OF GENRES"],
       activity: ["Your listening, over time", "A DIARY IN LITTLE MOMENTS"]
     };
     $("#sectionTitle").textContent = titles[state.view][0];
@@ -1102,6 +1265,7 @@
     if (state.view === "overview") content.innerHTML = overviewMarkup(data);
     if (state.view === "tracks") content.innerHTML = tracksMarkup(data);
     if (state.view === "artists") content.innerHTML = artistsMarkup(data);
+    if (state.view === "galaxy") content.innerHTML = galaxyMarkup(data);
     if (state.view === "activity") content.innerHTML = activityMarkup(data);
     bindDynamicActions();
     hydrateArtworkImages();
@@ -1132,6 +1296,220 @@
     const button = $("#settingsButton");
     if (menu && !menu.hidden) menu.hidden = true;
     if (button) button.setAttribute("aria-expanded", "false");
+  }
+
+  function shareTheme() {
+    return {
+      ink: cssVar("--ink") || "#1c1c1c",
+      paper: cssVar("--paper") || "#e3e3e3",
+      paperDeep: cssVar("--paper-deep") || "#d7d7d7",
+      accent: cssVar("--pink") || "#939393",
+      muted: cssVar("--muted") || "#818181",
+      white: cssVar("--white") || "#fefefe"
+    };
+  }
+
+  function loadArtwork(url, ms = 9000) {
+    return new Promise((resolve) => {
+      if (!secureArtworkUrl(url)) return resolve(null);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      const timer = window.setTimeout(() => { img.src = ""; resolve(null); }, ms);
+      img.onload = () => { window.clearTimeout(timer); resolve(img); };
+      img.onerror = () => { window.clearTimeout(timer); resolve(null); };
+      img.src = url;
+    });
+  }
+
+  function drawCircleImage(ctx, img, letter, x, y, radius, fallbackFill) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.clip();
+    if (img) {
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side,
+        x - radius, y - radius, radius * 2, radius * 2);
+    } else {
+      ctx.fillStyle = fallbackFill;
+      ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      ctx.fillStyle = "rgb(255 255 255 / 92%)";
+      ctx.font = "400 " + Math.round(radius) + "px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(letter || "?").slice(0, 1).toUpperCase(), x, y + radius * 0.06);
+    }
+    ctx.restore();
+  }
+
+  function drawRoundImage(ctx, img, letter, x, y, size, radius, fallbackFill) {
+    ctx.save();
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, size, size, radius);
+    else ctx.rect(x, y, size, size);
+    ctx.clip();
+    if (img) {
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, x, y, size, size);
+    } else {
+      ctx.fillStyle = fallbackFill;
+      ctx.fillRect(x, y, size, size);
+      ctx.fillStyle = "rgb(255 255 255 / 92%)";
+      ctx.font = "400 " + Math.round(size * 0.5) + "px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(letter || "?").slice(0, 1).toUpperCase(), x + size / 2, y + size / 2 + 2);
+    }
+    ctx.restore();
+  }
+
+  function fitText(ctx, text, maxWidth, baseSize, family) {
+    let size = baseSize;
+    ctx.font = "400 " + size + "px " + family;
+    while (size > 18 && ctx.measureText(text).width > maxWidth) {
+      size -= 4;
+      ctx.font = "400 " + size + "px " + family;
+    }
+    return size;
+  }
+
+  async function drawShareCard(format) {
+    const story = format !== "square";
+    const W = 1080;
+    const H = story ? 1920 : 1080;
+    const theme = shareTheme();
+    const data = insightData();
+    const artists = (data.artists || []).slice(0, 5);
+    const tracks = (data.tracks || []).slice(0, 5);
+    const username = state.mode === "lastfm"
+      ? state.lastfmUsername
+      : state.profile?.display_name || "my";
+    try { await document.fonts.ready; } catch { /* Fall back to system fonts on the card. */ }
+    const display = '"Shelf Display Study", "DejaVu Sans Condensed", Impact, sans-serif';
+    const body = '"DejaVu Sans", Arial, sans-serif';
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, theme.paper);
+    bg.addColorStop(1, theme.paperDeep);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = 90;
+    ctx.fillStyle = theme.ink;
+    ctx.beginPath();
+    ctx.arc(pad + 34, pad + 10, 34, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = theme.accent;
+    ctx.beginPath();
+    ctx.arc(pad + 34, pad + 10, 13, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = theme.ink;
+    ctx.font = "700 44px " + body;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("ROOM", pad + 88, pad + 26);
+    ctx.fillStyle = theme.muted;
+    ctx.font = "600 30px " + body;
+    ctx.textAlign = "right";
+    ctx.fillText(RANGE_LABEL[state.range].toUpperCase(), W - pad, pad + 22);
+
+    ctx.fillStyle = theme.ink;
+    ctx.textAlign = "left";
+    fitText(ctx, username + "'s sound", W - pad * 2, story ? 120 : 104, display);
+    ctx.fillText(username + "'s sound", pad, pad + (story ? 210 : 190));
+
+    const artPhotos = await Promise.all(artists.map((artist) => loadArtwork(artist.image)));
+    const top = pad + (story ? 300 : 270);
+    ctx.fillStyle = theme.muted;
+    ctx.font = "600 32px " + body;
+    ctx.fillText("TOP ARTISTS", pad, top);
+    const cols = 5;
+    const gap = story ? 30 : 24;
+    const radius = Math.min(120, ((W - pad * 2 - gap * (cols - 1)) / cols) / 2);
+    artists.forEach((artist, index) => {
+      const cx = pad + radius + index * (radius * 2 + gap);
+      const cy = top + 60 + radius;
+      drawCircleImage(ctx, artPhotos[index], artist.name, cx, cy, radius, theme.ink);
+      ctx.fillStyle = theme.ink;
+      ctx.font = "600 30px " + body;
+      ctx.textAlign = "center";
+      let label = artist.name || "Unknown";
+      fitText(ctx, label, radius * 2 + 20, 30, body);
+      if (ctx.measureText(label).width > radius * 2 + 20 && label.length > 14) label = label.slice(0, 13) + "…";
+      ctx.fillText(label, cx, cy + radius + 44);
+    });
+
+    const trackPhotos = await Promise.all(tracks.map((track) => loadArtwork(track.image)));
+    let listTop = top + 60 + radius * 2 + (story ? 150 : 130);
+    ctx.textAlign = "left";
+    ctx.fillStyle = theme.muted;
+    ctx.font = "600 32px " + body;
+    ctx.fillText("TOP TRACKS", pad, listTop);
+    listTop += story ? 50 : 44;
+    const rowH = story ? 172 : 118;
+    const cover = story ? 132 : 92;
+    tracks.forEach((track, index) => {
+      const y = listTop + index * rowH;
+      if (y + rowH > H - (story ? 150 : 110)) return;
+      ctx.fillStyle = theme.muted;
+      ctx.font = "700 34px " + body;
+      ctx.textAlign = "left";
+      ctx.fillText(String(index + 1).padStart(2, "0"), pad, y + rowH / 2 + 12);
+      drawRoundImage(ctx, trackPhotos[index], track.name || track.trackName, pad + 80, y + (rowH - cover) / 2, cover, 22, theme.ink);
+      const title = track.name || track.trackName || "Unknown track";
+      const artist = track.artist || track.artistName || "";
+      ctx.fillStyle = theme.ink;
+      fitText(ctx, title, W - pad * 2 - 320, story ? 40 : 36, body);
+      ctx.fillText(title, pad + 80 + cover + 28, y + rowH / 2 - 8);
+      ctx.fillStyle = theme.muted;
+      ctx.font = (story ? 32 : 30) + "px " + body;
+      ctx.fillText(String(artist).slice(0, 34), pad + 80 + cover + 28, y + rowH / 2 + (story ? 40 : 36));
+    });
+
+    ctx.fillStyle = theme.muted;
+    ctx.font = "600 28px " + body;
+    ctx.textAlign = "center";
+    ctx.fillText("listening-room-stats.netlify.app", W / 2, H - 64);
+    return canvas;
+  }
+
+  async function refreshSharePreview() {
+    const preview = $("#sharePreview");
+    const loading = $("#shareLoading");
+    preview.hidden = true;
+    if (loading) loading.hidden = false;
+    $$("[data-format]", $("#shareDialog")).forEach((button) => {
+      const active = button.dataset.format === state.shareFormat;
+      button.classList.toggle("pill-dark", active);
+      button.classList.toggle("pill-outline", !active);
+    });
+    try {
+      state.shareCanvas = await drawShareCard(state.shareFormat);
+      preview.src = state.shareCanvas.toDataURL("image/png");
+      preview.hidden = false;
+    } catch {
+      showToast("That card could not be painted. Try again.");
+    } finally {
+      if (loading) loading.hidden = true;
+    }
+  }
+
+  function openShareDialog() {
+    const dialog = $("#shareDialog");
+    if (!dialog) return;
+    if (!dialog.open) dialog.showModal();
+    refreshSharePreview();
+  }
+
+  function shareCanvasBlob() {
+    return new Promise((resolve) => {
+      if (!state.shareCanvas) return resolve(null);
+      state.shareCanvas.toBlob((blob) => resolve(blob), "image/png");
+    });
   }
 
   function animateStatCounts() {
@@ -1322,6 +1700,50 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }));
     $$(".theme-dot").forEach((button) => button.addEventListener("click", () => setTheme(button.dataset.theme)));
+    const shareButton = $("#shareButton");
+    if (shareButton) shareButton.addEventListener("click", openShareDialog);
+    $$("[data-format]", $("#shareDialog")).forEach((button) => button.addEventListener("click", () => {
+      if (state.shareFormat === button.dataset.format) return;
+      state.shareFormat = button.dataset.format;
+      refreshSharePreview();
+    }));
+    const shareDownload = $("#shareDownload");
+    if (shareDownload) shareDownload.addEventListener("click", async () => {
+      const blob = await shareCanvasBlob();
+      if (!blob) {
+        showToast("Nothing to download yet. Wait for the preview.");
+        return;
+      }
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "room-" + state.shareFormat + "-" + state.range + ".png";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+    });
+    const shareNative = $("#shareNative");
+    if (shareNative) shareNative.addEventListener("click", async () => {
+      const blob = await shareCanvasBlob();
+      if (!blob) {
+        showToast("Nothing to share yet. Wait for the preview.");
+        return;
+      }
+      const file = new File([blob], "room-" + state.shareFormat + ".png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "My Room card" });
+        } catch {
+          /* The user dismissed the share sheet. */
+        }
+      } else {
+        showToast("This browser cannot share files. Use Download instead.");
+      }
+    });
+    const shareDialog = $("#shareDialog");
+    if (shareDialog) shareDialog.addEventListener("click", (event) => {
+      if (event.target === shareDialog) shareDialog.close();
+    });
     const themeLink = $("#themeStylesheet");
     if (themeLink) themeLink.addEventListener("load", syncThemeColor);
     let navResizeTimer = 0;

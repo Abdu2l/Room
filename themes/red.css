@@ -1190,3 +1190,18 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .chart-column:nth-child(7) .chart-bar { animation-delay: 360ms; }
 .settings-credit { display: block; color: var(--muted); font-size: 10px; text-align: center; text-decoration: none; }
 .settings-credit:hover { color: var(--ink); text-decoration: underline; }
+
+.share-button { min-height: 42px; padding: 0 16px; font-size: 12px; }
+.share-formats { display: flex; gap: 10px; margin: 18px 0 4px; }
+.share-formats .pill-button { min-height: 42px; font-size: 12px; }
+.share-preview { position: relative; display: grid; place-items: center; min-height: 320px; margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+.share-preview img { display: block; width: 100%; max-height: 430px; object-fit: contain; background: #141414; }
+.share-preview img[hidden] { display: none; }
+#shareLoading { position: absolute; color: var(--muted); font-size: 12px; }
+.share-actions { display: flex; gap: 10px; margin-top: 14px; }
+.share-actions .pill-button { flex: 1; min-height: 46px; }
+.galaxy-wrap { position: relative; width: 100%; aspect-ratio: 16 / 10; }
+.bubble { position: absolute; display: grid; place-items: center; overflow: hidden; border-radius: 50%; text-align: center; animation: arrive 600ms var(--ease) both; box-shadow: inset -8px -12px 24px rgb(0 0 0 / 25%), inset 6px 8px 16px rgb(255 255 255 / 18%), 0 10px 24px rgb(0 0 0 / 18%); }
+.bubble > span { display: grid; gap: 4px; padding: 0 12%; }
+.bubble strong { display: block; color: #fff; font-size: clamp(11px, 1.7vw, 22px); line-height: 1.15; overflow-wrap: anywhere; }
+.bubble small { color: rgb(255 255 255 / 75%); font-size: 11px; }
