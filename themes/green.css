@@ -1244,3 +1244,7 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 @keyframes modal-spring { from { opacity: 0; transform: translateY(16px) scale(.96); } }
 @keyframes dialog-rise { from { opacity: 0; transform: translateY(14px); } }
 
+.lower-grid .panel { display: flex; flex-direction: column; }
+.lower-grid .panel-heading { flex: 0 0 auto; }
+.lower-grid .artist-grid { flex: 1; align-content: center; }
+.lower-grid .track-list { flex: 1; align-content: center; }
