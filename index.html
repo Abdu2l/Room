@@ -7,16 +7,16 @@
     <meta name="description" content="A listening dashboard for Spotify listeners who track their music with Last.fm." />
     <title>Room</title>
     <link rel="icon" type="image/svg+xml" href="./logo.svg?v=3" />
-    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=11" />
+    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=12" />
     <script>
       try {
         var __roomTheme = localStorage.getItem("room-theme") || "grey";
-        var __themeHref = { pink: "./themes/pink.css?v=11", green: "./themes/green.css?v=11", red: "./themes/red.css?v=11" }[__roomTheme];
+        var __themeHref = { pink: "./themes/pink.css?v=12", green: "./themes/green.css?v=12", red: "./themes/red.css?v=12" }[__roomTheme];
         if (__themeHref) document.getElementById("themeStylesheet").href = __themeHref;
       } catch (e) {}
     </script>
-    <script src="./config.js?v=11"></script>
-    <script src="./app.js?v=11" defer></script>
+    <script src="./config.js?v=12"></script>
+    <script src="./app.js?v=12" defer></script>
   </head>
   <body>
     <div class="paper">
@@ -178,6 +178,7 @@
         <div class="share-formats" role="group" aria-label="Card format">
           <button class="pill-button pill-dark" type="button" data-format="story">Story · 9:16</button>
           <button class="pill-button pill-outline" type="button" data-format="square">Square · 1:1</button>
+          <button class="pill-button pill-outline" type="button" data-format="track">Track</button>
         </div>
         <div class="share-preview"><img id="sharePreview" alt="Share card preview" hidden /><span id="shareLoading">Painting your card…</span></div>
         <div class="share-actions">
@@ -206,6 +207,7 @@
         <input id="noteInput" class="client-id-input" type="text" maxlength="140" autocomplete="off" spellcheck="true" placeholder="Why does this one matter?" />
         <div class="share-actions">
           <button class="pill-button pill-dark" id="noteSave" type="button">Save ✓</button>
+          <button class="pill-button pill-outline" id="noteShare" type="button">Share ↗</button>
           <button class="pill-button pill-outline" id="noteClear" type="button">Clear</button>
         </div>
       </div>

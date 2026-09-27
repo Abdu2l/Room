@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=11",
-    pink: "./themes/pink.css?v=11",
-    green: "./themes/green.css?v=11",
-    red: "./themes/red.css?v=11"
+    grey: "./styles.css?v=12",
+    pink: "./themes/pink.css?v=12",
+    green: "./themes/green.css?v=12",
+    red: "./themes/red.css?v=12"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -82,6 +82,7 @@
     genreStatus: "idle",
     genres: [],
     shareFormat: "story",
+    shareTrack: null,
     shareCanvas: null,
     noticeTimer: null,
     toastTimer: null
@@ -1450,6 +1451,115 @@
     return size;
   }
 
+  function wrapText(ctx, text, maxWidth) {
+    const words = String(text || "").split(/\s+/).filter(Boolean);
+    const lines = [];
+    let line = "";
+    words.forEach((word) => {
+      const test = line ? line + " " + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function findTrackImage(artist, title) {
+    const a = String(artist || "").trim().toLocaleLowerCase();
+    const t = String(title || "").trim().toLocaleLowerCase();
+    const pools = [
+      ...(state.lastfmTopTracks || []).map((track) => ({ artist: track.artist, title: track.name, image: track.image })),
+      ...(state.lastfmRows || []).map((row) => ({ artist: row.artistName, title: row.trackName, image: row.image })),
+      ...(state.tracks || []).map((track) => ({ artist: track.artist, title: track.name, image: track.image })),
+      ...(state.recent || []).map((row) => ({ artist: row.artistName, title: row.trackName, image: row.image }))
+    ];
+    const hit = pools.find((row) =>
+      String(row.artist || "").trim().toLocaleLowerCase() === a &&
+      String(row.title || "").trim().toLocaleLowerCase() === t && secureArtworkUrl(row.image));
+    return hit ? hit.image : "";
+  }
+
+  async function drawTrackCard() {
+    const W = 1080;
+    const H = 1350;
+    const theme = shareTheme();
+    const data = insightData();
+    let subject = state.shareTrack;
+    if (!subject?.title) {
+      const fallback = (data.tracks || [])[0] || (data.recent || [])[0] || {};
+      subject = {
+        artist: fallback.artist || fallback.artistName || "Unknown artist",
+        title: fallback.name || fallback.trackName || "Unknown track"
+      };
+    }
+    const entry = getNote(subject.artist, subject.title);
+    const image = await loadArtwork(subject.image || findTrackImage(subject.artist, subject.title));
+    try { await document.fonts.ready; } catch { /* Fall back to system fonts on the card. */ }
+    const display = '"Shelf Display Study", "DejaVu Sans Condensed", Impact, sans-serif';
+    const body = '"DejaVu Sans", Arial, sans-serif';
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, theme.paper);
+    bg.addColorStop(1, theme.paperDeep);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = 90;
+    ctx.fillStyle = theme.ink;
+    ctx.beginPath();
+    ctx.arc(pad + 30, pad + 8, 30, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = theme.accent;
+    ctx.beginPath();
+    ctx.arc(pad + 30, pad + 8, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = theme.ink;
+    ctx.font = "700 40px " + body;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("ROOM", pad + 76, pad + 22);
+    ctx.fillStyle = theme.muted;
+    ctx.font = "600 28px " + body;
+    ctx.textAlign = "right";
+    ctx.fillText("TRACK DIARY", W - pad, pad + 20);
+
+    const coverSize = 520;
+    drawRoundImage(ctx, image, subject.title, (W - coverSize) / 2, 300, coverSize, 56, theme.ink);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = theme.ink;
+    fitText(ctx, subject.title, W - pad * 2, 84, display);
+    ctx.fillText(subject.title, W / 2, 920);
+    ctx.fillStyle = theme.muted;
+    ctx.font = "400 40px " + body;
+    ctx.fillText(String(subject.artist).slice(0, 44), W / 2, 982);
+
+    if (entry.stars) {
+      ctx.fillStyle = theme.accent;
+      ctx.font = "400 58px " + body;
+      ctx.fillText("★".repeat(Math.min(5, entry.stars)) + "☆".repeat(5 - Math.min(5, entry.stars)), W / 2, 1072);
+    }
+    if (entry.note) {
+      ctx.fillStyle = theme.ink;
+      ctx.font = "italic 400 36px " + body;
+      const lines = wrapText(ctx, "\u201C" + entry.note + "\u201D", W - pad * 2 - 60).slice(0, 3);
+      lines.forEach((line, index) => {
+        ctx.fillText(line, W / 2, 1140 + index * 52);
+      });
+    }
+    ctx.fillStyle = theme.muted;
+    ctx.font = "600 28px " + body;
+    ctx.fillText("abdu2l.github.io/Room", W / 2, H - 56);
+    return canvas;
+  }
+
   async function drawShareCard(format) {
     const story = format !== "square";
     const W = 1080;
@@ -1584,7 +1694,9 @@
       button.classList.toggle("pill-outline", !active);
     });
     try {
-      state.shareCanvas = await drawShareCard(state.shareFormat);
+      state.shareCanvas = state.shareFormat === "track"
+        ? await drawTrackCard()
+        : await drawShareCard(state.shareFormat);
       preview.src = state.shareCanvas.toDataURL("image/png");
       preview.hidden = false;
     } catch {
@@ -1856,6 +1968,18 @@
       if (!button) return;
       noteDraft.stars = Number(button.dataset.stars) || 0;
       paintNoteStars();
+    });
+    const noteShare = $("#noteShare");
+    if (noteShare) noteShare.addEventListener("click", () => {
+      saveNote(noteDraft.artist, noteDraft.title, {
+        stars: noteDraft.stars,
+        note: $("#noteInput").value.trim()
+      });
+      state.shareTrack = { artist: noteDraft.artist, title: noteDraft.title };
+      state.shareFormat = "track";
+      $("#noteDialog").close();
+      render();
+      openShareDialog();
     });
     const noteSave = $("#noteSave");
     if (noteSave) noteSave.addEventListener("click", () => {
