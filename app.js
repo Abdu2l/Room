@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=10",
-    pink: "./themes/pink.css?v=10",
-    green: "./themes/green.css?v=10",
-    red: "./themes/red.css?v=10"
+    grey: "./styles.css?v=11",
+    pink: "./themes/pink.css?v=11",
+    green: "./themes/green.css?v=11",
+    red: "./themes/red.css?v=11"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -1529,9 +1529,12 @@
     listTop += story ? 50 : 44;
     const rowH = story ? 172 : 118;
     const cover = story ? 132 : 92;
+    const textX = pad + 80 + cover + 28;
+    let rowY = listTop;
     tracks.forEach((track, index) => {
-      const y = listTop + index * rowH;
-      if (y + rowH > H - (story ? 150 : 110)) return;
+      if (rowY + rowH > H - (story ? 150 : 110)) return;
+      const y = rowY;
+      rowY += rowH;
       ctx.fillStyle = theme.muted;
       ctx.font = "700 34px " + body;
       ctx.textAlign = "left";
@@ -1539,12 +1542,28 @@
       drawRoundImage(ctx, trackPhotos[index], track.name || track.trackName, pad + 80, y + (rowH - cover) / 2, cover, 22, theme.ink);
       const title = track.name || track.trackName || "Unknown track";
       const artist = track.artist || track.artistName || "";
+      const entry = getNote(artist, title);
+      const starStr = entry.stars ? "★".repeat(Math.min(5, entry.stars)) + "☆".repeat(5 - Math.min(5, entry.stars)) : "";
+      const hasNote = Boolean(entry.note && story);
       ctx.fillStyle = theme.ink;
       fitText(ctx, title, W - pad * 2 - 320, story ? 40 : 36, body);
-      ctx.fillText(title, pad + 80 + cover + 28, y + rowH / 2 - 8);
+      ctx.fillText(title, textX, y + rowH / 2 - (hasNote ? 22 : 8));
+      const line2y = y + rowH / 2 + (hasNote ? 18 : (story ? 40 : 36));
       ctx.fillStyle = theme.muted;
       ctx.font = (story ? 32 : 30) + "px " + body;
-      ctx.fillText(String(artist).slice(0, 34), pad + 80 + cover + 28, y + rowH / 2 + (story ? 40 : 36));
+      const shortArtist = String(artist).slice(0, starStr ? 22 : 34);
+      ctx.fillText(shortArtist, textX, line2y);
+      if (starStr) {
+        ctx.fillStyle = theme.accent;
+        ctx.font = (story ? 30 : 28) + "px " + body;
+        ctx.fillText(starStr, textX + ctx.measureText(shortArtist + "  ").width, line2y);
+      }
+      if (hasNote) {
+        ctx.fillStyle = theme.muted;
+        ctx.font = "italic 28px " + body;
+        const clipped = entry.note.length > 44 ? entry.note.slice(0, 43) + "…" : entry.note;
+        ctx.fillText("\u201C" + clipped + "\u201D", textX, y + rowH / 2 + 58);
+      }
     });
 
     ctx.fillStyle = theme.muted;

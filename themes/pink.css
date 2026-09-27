@@ -1249,3 +1249,11 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 @keyframes backdrop-fade { from { opacity: 0; } }
 @keyframes modal-spring { from { opacity: 0; transform: translateY(16px) scale(.96); } }
 @keyframes dialog-rise { from { opacity: 0; transform: translateY(14px); } }
+
+.track-row, .recent-row { perspective: 500px; }
+.cover-art { transform-style: preserve-3d; animation: cover-rock 7s ease-in-out infinite; }
+.track-row:nth-child(2) .cover-art, .recent-row:nth-child(2) .cover-art { animation-delay: -1.4s; }
+.track-row:nth-child(3) .cover-art, .recent-row:nth-child(3) .cover-art { animation-delay: -2.8s; }
+.track-row:nth-child(4) .cover-art, .recent-row:nth-child(4) .cover-art { animation-delay: -4.2s; }
+.track-row:nth-child(5) .cover-art, .recent-row:nth-child(5) .cover-art { animation-delay: -5.6s; }
+@keyframes cover-rock { 0%, 100% { transform: rotateY(-10deg) translateY(0); } 50% { transform: rotateY(10deg) translateY(-2px); } }
