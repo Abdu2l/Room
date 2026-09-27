@@ -1120,8 +1120,7 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 }
 
 .wordmark { perspective: 500px; }
-.wordmark-logo { width: 30px; height: 30px; transform-style: preserve-3d; animation: logo-rock 5s ease-in-out infinite; }
-@keyframes logo-rock { 0%, 100% { transform: rotateY(-32deg) rotateX(5deg) translateY(0); } 50% { transform: rotateY(32deg) rotateX(-5deg) translateY(-3px); } }
+.wordmark-logo { width: 30px; height: 30px; }
 
 @media (min-width: 901px) {
   .topbar { min-height: 102px; }
