@@ -752,9 +752,14 @@
   }
 
   function statCard(label, value, note, icon, tone = "") {
+    const text = String(value ?? "");
+    const countMatch = text.match(/^([\d,]+)((?:\s+[a-z]+)?)$/i);
+    const countAttrs = countMatch
+      ? ' data-count="' + countMatch[1].replace(/,/g, "") + '" data-suffix="' + escapeHtml(countMatch[2] ? " " + countMatch[2].trim() : "") + '"'
+      : "";
     return '<article class="stat-card ' + tone + '">' +
       '<span class="stat-label"><span class="stat-icon">' + iconSvg(icon) + '</span>' + escapeHtml(label) + '</span>' +
-      '<strong class="stat-value" title="' + escapeHtml(value) + '">' + escapeHtml(value) + '</strong>' +
+      '<strong class="stat-value" title="' + escapeHtml(value) + '"' + countAttrs + '>' + escapeHtml(value) + '</strong>' +
       '<span class="stat-note">' + escapeHtml(note) + '</span></article>';
   }
 
@@ -1102,6 +1107,7 @@
     hydrateArtworkImages();
     moveNavIndicator();
     moveRangeIndicator();
+    animateStatCounts();
   }
 
   function syncThemeColor() {
@@ -1126,6 +1132,29 @@
     const button = $("#settingsButton");
     if (menu && !menu.hidden) menu.hidden = true;
     if (button) button.setAttribute("aria-expanded", "false");
+  }
+
+  function animateStatCounts() {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    $$(".stat-value[data-count]").forEach((element) => {
+      if (element.dataset.counted) return;
+      element.dataset.counted = "1";
+      const target = Number(element.dataset.count) || 0;
+      const suffix = element.dataset.suffix || "";
+      if (reduceMotion || !target) {
+        element.textContent = formatNumber(target) + suffix;
+        return;
+      }
+      const started = performance.now();
+      const duration = 900;
+      const tick = (now) => {
+        const progress = Math.min(1, (now - started) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        element.textContent = formatNumber(Math.round(target * eased)) + suffix;
+        if (progress < 1 && element.isConnected) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
   }
 
   function moveRangeIndicator() {
