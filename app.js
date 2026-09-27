@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=16",
-    pink: "./themes/pink.css?v=16",
-    green: "./themes/green.css?v=16",
-    red: "./themes/red.css?v=16"
+    grey: "./styles.css?v=17",
+    pink: "./themes/pink.css?v=17",
+    green: "./themes/green.css?v=17",
+    red: "./themes/red.css?v=17"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -447,7 +447,8 @@
         img.remove();
         delete element.dataset.hydrating;
       };
-      element.prepend(img);
+      const clip = element.querySelector(".artist-clip");
+      (clip || element).prepend(img);
       element.classList.remove("is-missing");
     });
   }
@@ -1010,8 +1011,8 @@
         ? '<img src="' + escapeHtml(image) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'is-missing\');this.remove()" />'
         : "";
       const colorStyle = image ? "" : ' style="--artist-a:' + ARTIST_COLORS[index % ARTIST_COLORS.length] + '"';
-      const art = '<span class="artist-art' + (image ? "" : " is-missing") + '"' + colorStyle + ' data-artist="' + escapeHtml(artist.name || "") + '">' + artImage +
-        '<span class="artist-fallback" aria-hidden="true">' + initial + '</span></span>';
+      const art = '<span class="artist-art' + (image ? "" : " is-missing") + '"' + colorStyle + ' data-artist="' + escapeHtml(artist.name || "") + '"><span class="artist-clip">' + artImage +
+        '<span class="artist-fallback" aria-hidden="true">' + initial + '</span></span></span>';
       const subtitle = state.history || state.mode === "lastfm"
         ? formatNumber(artist.plays || 0) + (state.mode === "lastfm" ? " scrobbles" : " play entries")
         : (artist.genres || []).slice(0, 1).join("") || "Top artist";
