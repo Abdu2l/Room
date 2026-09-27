@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=8",
-    pink: "./themes/pink.css?v=8",
-    green: "./themes/green.css?v=8",
-    red: "./themes/red.css?v=8"
+    grey: "./styles.css?v=9",
+    pink: "./themes/pink.css?v=9",
+    green: "./themes/green.css?v=9",
+    red: "./themes/red.css?v=9"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
