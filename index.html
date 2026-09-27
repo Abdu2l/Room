@@ -187,6 +187,30 @@
       </div>
     </dialog>
 
+    <dialog class="connect-dialog note-dialog" id="noteDialog" aria-labelledby="noteTitle">
+      <form method="dialog" class="dialog-close-row">
+        <button class="dialog-close" aria-label="Close note">×</button>
+      </form>
+      <div class="dialog-inner">
+        <p class="eyebrow dialog-eyebrow"><span class="eyebrow-dot"></span> WHY THIS SONG MATTERS</p>
+        <h2 id="noteTitle">Unknown track</h2>
+        <p class="dialog-artist" id="noteArtist">Unknown artist</p>
+        <div class="note-stars" id="noteStars" role="group" aria-label="Your rating">
+          <button type="button" data-stars="1" aria-label="1 star">★</button>
+          <button type="button" data-stars="2" aria-label="2 stars">★</button>
+          <button type="button" data-stars="3" aria-label="3 stars">★</button>
+          <button type="button" data-stars="4" aria-label="4 stars">★</button>
+          <button type="button" data-stars="5" aria-label="5 stars">★</button>
+        </div>
+        <label class="field-label" for="noteInput">One sentence</label>
+        <input id="noteInput" class="client-id-input" type="text" maxlength="140" autocomplete="off" spellcheck="true" placeholder="Why does this one matter?" />
+        <div class="share-actions">
+          <button class="pill-button pill-dark" id="noteSave" type="button">Save ✓</button>
+          <button class="pill-button pill-outline" id="noteClear" type="button">Clear</button>
+        </div>
+      </div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

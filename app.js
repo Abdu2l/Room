@@ -911,6 +911,66 @@
     return { kicker: "YOUR NEXT FAVORITE", title: "Waiting for a little music", detail: "Connect Spotify or import a history export." };
   }
 
+  const NOTE_KEY = "room-track-notes-v1";
+  const noteDraft = { artist: "", title: "", stars: 0 };
+
+  function noteKey(artist, title) {
+    return [artist, title].map((part) => String(part || "").trim().toLocaleLowerCase()).join(" | ");
+  }
+
+  function readNotes() {
+    try {
+      return JSON.parse(localStorage.getItem(NOTE_KEY) || "{}") || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function getNote(artist, title) {
+    const entry = readNotes()[noteKey(artist, title)] || {};
+    return { stars: Number(entry.stars) || 0, note: String(entry.note || "") };
+  }
+
+  function saveNote(artist, title, entry) {
+    const all = readNotes();
+    const key = noteKey(artist, title);
+    if (!entry.stars && !entry.note) delete all[key];
+    else all[key] = { stars: entry.stars || 0, note: String(entry.note || "").slice(0, 140) };
+    try {
+      localStorage.setItem(NOTE_KEY, JSON.stringify(all));
+    } catch { /* Keep the note for this session if browser storage is unavailable. */ }
+  }
+
+  function trackMarks(artist, title) {
+    const entry = getNote(artist, title);
+    if (!entry.stars && !entry.note) return "";
+    if (entry.stars) {
+      const stars = "★★★★★".slice(0, Math.min(5, entry.stars)) + "☆☆☆☆☆".slice(0, 5 - Math.min(5, entry.stars));
+      return '<span class="track-stars" title="' + entry.stars + ' of 5 stars' +
+        (entry.note ? " · " + escapeHtml(entry.note) : "") + '">' + stars + "</span>";
+    }
+    return '<span class="track-note-dot" title="' + escapeHtml(entry.note) + '">✎</span>';
+  }
+
+  function paintNoteStars() {
+    $$("#noteStars button").forEach((button) => {
+      button.classList.toggle("is-lit", Number(button.dataset.stars) <= noteDraft.stars);
+    });
+  }
+
+  function openNoteDialog(artist, title) {
+    noteDraft.artist = artist || "";
+    noteDraft.title = title || "";
+    const entry = getNote(artist, title);
+    noteDraft.stars = entry.stars;
+    $("#noteTitle").textContent = title || "Unknown track";
+    $("#noteArtist").textContent = artist || "Unknown artist";
+    $("#noteInput").value = entry.note;
+    paintNoteStars();
+    const dialog = $("#noteDialog");
+    if (dialog && !dialog.open) dialog.showModal();
+  }
+
   function trackRows(tracks, limit = 5, recentMode = false) {
     if (!tracks.length) return '<p class="empty-copy">No track rows in this view yet. Try another time range or wait for Last.fm to record a listen.</p>';
     return '<div class="' + (recentMode ? "recent-list" : "track-list") + '">' +
@@ -925,18 +985,18 @@
         const cover = '<span class="cover-art' + (image ? "" : " is-missing") + '" data-artist="' + escapeHtml(artist) + '" data-track="' + escapeHtml(title) + '">' + coverImage +
           '<span class="cover-fallback" aria-hidden="true">' + initial + '</span></span>';
         if (recentMode) {
-          return '<div class="recent-row">' + cover +
-            '<span class="recent-meta"><strong>' + escapeHtml(title) + '</strong><span>' + escapeHtml(artist) + '</span></span>' +
+          return '<div class="recent-row" data-artist="' + escapeHtml(artist) + '" data-track="' + escapeHtml(title) + '">' + cover +
+            '<span class="recent-meta"><strong>' + escapeHtml(title) + '</strong><span>' + escapeHtml(artist) + '</span>' + trackMarks(artist, title) + '</span>' +
             '<span class="recent-time">' + escapeHtml(relativeTime(track.ts)) + '</span></div>';
         }
         const duration = state.history || state.mode === "lastfm"
           ? (track.plays || 0) + (state.mode === "lastfm" ? " scrobbles" : (track.plays || 0) === 1 ? " play" : " plays")
           : track.duration_ms ? formatDuration(track.duration_ms) : (track.plays || "");
-        return '<div class="track-row"><span class="track-rank"><span>' + String(index + 1).padStart(2, "0") + '</span>' +
+        return '<div class="track-row" data-artist="' + escapeHtml(artist) + '" data-track="' + escapeHtml(title) + '"><span class="track-rank"><span>' + String(index + 1).padStart(2, "0") + '</span>' +
           '</span>' +
           cover + '<span class="track-copy"><span class="track-name">' + escapeHtml(title) +
           '</span><span class="track-artist">' + escapeHtml(artist) + '</span></span>' +
-          '<span class="track-duration">' + escapeHtml(duration) + '</span></div>';
+          '<span class="track-duration">' + escapeHtml(duration) + trackMarks(artist, title) + '</span></div>';
       }).join("") + '</div>';
   }
 
@@ -1490,7 +1550,7 @@
     ctx.fillStyle = theme.muted;
     ctx.font = "600 28px " + body;
     ctx.textAlign = "center";
-    ctx.fillText("listening-room-stats.netlify.app", W / 2, H - 64);
+    ctx.fillText("abdu2l.github.io/Room", W / 2, H - 64);
     return canvas;
   }
 
@@ -1771,8 +1831,40 @@
     if (shareDialog) shareDialog.addEventListener("click", (event) => {
       if (event.target === shareDialog) shareDialog.close();
     });
+    const noteStars = $("#noteStars");
+    if (noteStars) noteStars.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-stars]");
+      if (!button) return;
+      noteDraft.stars = Number(button.dataset.stars) || 0;
+      paintNoteStars();
+    });
+    const noteSave = $("#noteSave");
+    if (noteSave) noteSave.addEventListener("click", () => {
+      saveNote(noteDraft.artist, noteDraft.title, {
+        stars: noteDraft.stars,
+        note: $("#noteInput").value.trim()
+      });
+      $("#noteDialog").close();
+      render();
+      showToast("Saved to your diary.");
+    });
+    const noteClear = $("#noteClear");
+    if (noteClear) noteClear.addEventListener("click", () => {
+      saveNote(noteDraft.artist, noteDraft.title, { stars: 0, note: "" });
+      $("#noteDialog").close();
+      render();
+    });
+    const noteDialog = $("#noteDialog");
+    if (noteDialog) noteDialog.addEventListener("click", (event) => {
+      if (event.target === noteDialog) noteDialog.close();
+    });
     const screen = $("#screenContent");
     if (screen) screen.addEventListener("click", (event) => {
+      const noteRow = event.target.closest(".track-row, .recent-row");
+      if (noteRow) {
+        openNoteDialog(noteRow.getAttribute("data-artist") || "", noteRow.getAttribute("data-track") || "");
+        return;
+      }
       const wrap = event.target.closest(".galaxy-wrap");
       if (!wrap) {
         document.querySelectorAll(".galaxy-wrap.has-focus").forEach((focused) => {

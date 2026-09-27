@@ -1225,3 +1225,11 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .galaxy-wrap.has-focus .bubble { opacity: .3; }
 .galaxy-wrap.has-focus .bubble.is-focus { opacity: 1; }
 .galaxy-caption { margin: 0 0 12px; color: var(--muted); font-size: 11px; letter-spacing: .04em; }
+
+.track-row, .recent-row { cursor: pointer; }
+.track-stars { margin-left: 8px; color: var(--pink); font-size: 11px; letter-spacing: 1px; white-space: nowrap; }
+.track-note-dot { margin-left: 6px; color: var(--muted); font-size: 11px; }
+.dialog-artist { margin: -6px 0 0; color: var(--muted); font-size: 13px; }
+.note-stars { display: flex; gap: 8px; margin: 16px 0 4px; }
+.note-stars button { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--muted); font-size: 20px; cursor: pointer; transition: transform 200ms cubic-bezier(.3, 1.4, .4, 1), color 150ms ease, border-color 150ms ease; }
+.note-stars button.is-lit { color: var(--pink); border-color: var(--pink); transform: scale(1.08); }
