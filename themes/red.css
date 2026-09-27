@@ -1188,3 +1188,5 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .chart-column:nth-child(5) .chart-bar { animation-delay: 240ms; }
 .chart-column:nth-child(6) .chart-bar { animation-delay: 300ms; }
 .chart-column:nth-child(7) .chart-bar { animation-delay: 360ms; }
+.settings-credit { display: block; color: var(--muted); font-size: 10px; text-align: center; text-decoration: none; }
+.settings-credit:hover { color: var(--ink); text-decoration: underline; }
