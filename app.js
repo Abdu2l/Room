@@ -1985,11 +1985,19 @@
         return;
       }
       const file = new File([blob], "room-" + state.shareFormat + ".png", { type: "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      let canFileShare = false;
+      try {
+        canFileShare = Boolean(navigator.canShare && navigator.canShare({ files: [file] }));
+      } catch {
+        canFileShare = false;
+      }
+      if (canFileShare) {
         try {
           await navigator.share({ files: [file], title: "My Room card" });
-        } catch {
-          /* The user dismissed the share sheet. */
+        } catch (error) {
+          if (error?.name === "AbortError") return;
+          downloadShareBlob(blob);
+          showToast("Sharing is blocked here — saved instead. Upload it to your story.");
         }
       } else {
         downloadShareBlob(blob);
