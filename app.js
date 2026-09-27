@@ -798,12 +798,11 @@
 
   function getStats(data) {
     if (data.source === "lastfm") {
-      const topArtist = data.artists[0];
       return [
         statCard("Scrobbles", formatNumber(state.lastfmTotalCount), RANGE_LABEL[state.range] + " · Last.fm total", "♫", "is-pink"),
         statCard("Top tracks", formatNumber(data.tracks.length), "Track rankings returned by Last.fm", "✳"),
         statCard("Top artists", formatNumber(data.artists.length), "Artist rankings returned by Last.fm", "◷"),
-        statCard("Most played artist", topArtist?.name || "No plays yet", topArtist ? formatNumber(topArtist.plays) + " scrobbles" : "No listens in this period", "↗", "is-dark")
+        statCard("Listening time", "≈ " + formatDuration(state.lastfmTotalCount * 3.5 * 60000), RANGE_LABEL[state.range] + " · estimated", "◷", "is-dark")
       ].join("");
     }
 
@@ -812,21 +811,21 @@
       const totalMs = rows.reduce((sum, row) => sum + row.msPlayed, 0);
       const distinctTracks = new Set(rows.map((row) => row.trackName + "\u0000" + row.artistName)).size;
       const peakHour = getPeakHour(rows);
-      const leadArtist = data.artists[0] ? data.artists[0].name : "No plays yet";
       return [
         statCard("Time in music", formatDuration(totalMs), "Sum of msPlayed in this export", "◷", "is-pink"),
         statCard("Play entries", formatNumber(rows.length), "Rows in your selected date range", "♫"),
         statCard("Tracks explored", formatNumber(distinctTracks), "Distinct track and artist pairs", "✳"),
-        statCard("Most played artist", leadArtist, peakHour ? "Your busiest hour: " + peakHour : "Most frequent in this export", "↗", "is-dark")
+        statCard("Peak hour", peakHour || "No plays yet", "Your busiest listening hour", "↗", "is-dark")
       ].join("");
     }
 
     if (state.mode === "demo") {
+      const flavors = new Set((data.artists || []).flatMap((artist) => artist.genres || [])).size;
       return [
         statCard("Time in music", "86 hr", "Illustrative sample · 6 month view", "◷", "is-pink"),
         statCard("Play entries", "1,284", "Illustrative sample listening log", "♫"),
         statCard("Tracks explored", "472", "Illustrative sample collection", "✳"),
-        statCard("Most played artist", data.artists[0]?.name || "—", "A fictional preview favorite", "↗", "is-dark")
+        statCard("Top flavors", formatNumber(flavors), "Distinct genre tags in this sample", "✳", "is-dark")
       ].join("");
     }
 
@@ -1005,6 +1004,11 @@
   }
 
   const artistTagCache = new Map();
+  const JUNK_TAGS = new Set([
+    "seen live", "favorites", "favourites", "favorite", "favourite", "love", "loved",
+    "awesome", "amazing", "best", "good", "great", "underrated", "guilty pleasure",
+    "guilty pleasures", "00s", "10s", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"
+  ]);
 
   async function fetchArtistTags(name) {
     const key = String(name || "").trim().toLocaleLowerCase();
@@ -1037,7 +1041,7 @@
         } catch {
           tags = [];
         }
-        tags.slice(0, 3).forEach((tag) => {
+        tags.slice(0, 4).filter((tag) => !JUNK_TAGS.has(tag)).slice(0, 3).forEach((tag) => {
           weights.set(tag, (weights.get(tag) || 0) + (artist.plays || 1));
         });
       });
@@ -1060,26 +1064,28 @@
     const factor = Math.sqrt((0.5 * width * height) / (Math.PI * total));
     const placed = [];
     items.forEach((item, index) => {
-      const radius = Math.max(40, Math.sqrt(item.value) * factor);
+      const fullRadius = Math.min(160, Math.max(44, Math.sqrt(item.value) * factor));
       if (!index) {
-        placed.push({ ...item, x: width / 2, y: height / 2, r: radius });
+        placed.push({ ...item, x: width / 2, y: height / 2, r: fullRadius });
         return;
       }
-      let angle = index * 2.39996;
-      let dist = placed[0].r + radius + 10;
-      for (let step = 0; step < 500; step++) {
-        const x = width / 2 + Math.cos(angle) * dist;
-        const y = height / 2 + Math.sin(angle) * dist * 0.72;
-        const fits = x - radius > 4 && x + radius < width - 4 && y - radius > 4 && y + radius < height - 4 &&
-          placed.every((other) => Math.hypot(other.x - x, other.y - y) > other.r + radius + 8);
-        if (fits) {
-          placed.push({ ...item, x, y, r: radius });
-          return;
+      for (const scale of [1, 0.7, 0.5]) {
+        const radius = fullRadius * scale;
+        let angle = index * 2.39996;
+        let dist = placed[0].r + radius + 10;
+        for (let step = 0; step < 500; step++) {
+          const x = width / 2 + Math.cos(angle) * dist;
+          const y = height / 2 + Math.sin(angle) * dist * 0.72;
+          const fits = x - radius > 4 && x + radius < width - 4 && y - radius > 4 && y + radius < height - 4 &&
+            placed.every((other) => Math.hypot(other.x - x, other.y - y) > other.r + radius + 8);
+          if (fits) {
+            placed.push({ ...item, x, y, r: radius });
+            return;
+          }
+          angle += 0.35;
+          dist += 2.4;
         }
-        angle += 0.35;
-        dist += 2.4;
       }
-      placed.push({ ...item, x: width / 2, y: height / 2, r: radius });
     });
     return placed;
   }
