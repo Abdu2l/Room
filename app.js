@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=24",
-    pink: "./themes/pink.css?v=24",
-    green: "./themes/green.css?v=24",
-    red: "./themes/red.css?v=24"
+    grey: "./styles.css?v=25",
+    pink: "./themes/pink.css?v=25",
+    green: "./themes/green.css?v=25",
+    red: "./themes/red.css?v=25"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -638,6 +638,26 @@
     }
 
     await loadLastfmData(username);
+  }
+
+  async function submitMenuUsername() {
+    const input = $("#menuUsername");
+    const username = (input?.value || "").trim();
+    if (!username) {
+      showToast("Enter your Last.fm username to load your scrobbles.");
+      input?.focus();
+      return;
+    }
+    closeSettingsMenu();
+    await loadLastfmData(username);
+  }
+
+  function syncMenuUsername() {
+    const input = $("#menuUsername");
+    if (!input || document.activeElement === input) return;
+    try {
+      input.value = state.lastfmUsername || localStorage.getItem(LASTFM_USERNAME_KEY) || "";
+    } catch { /* Leave the field empty if browser storage is unavailable. */ }
   }
 
   async function loadLastfmData(requestedUsername) {
@@ -1376,6 +1396,7 @@
     moveRangeIndicator();
     animateStatCounts();
     initGalaxyTilt();
+    syncMenuUsername();
   }
 
   function syncThemeColor() {
@@ -2180,6 +2201,12 @@
       navResizeTimer = window.setTimeout(() => { moveNavIndicator(); moveRangeIndicator(); }, 120);
     });
     if (document.fonts?.ready) document.fonts.ready.then(() => { moveNavIndicator(); moveRangeIndicator(); }).catch(() => {});
+    const menuLoadButton = $("#menuLoadButton");
+    if (menuLoadButton) menuLoadButton.addEventListener("click", submitMenuUsername);
+    const menuUsername = $("#menuUsername");
+    if (menuUsername) menuUsername.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") submitMenuUsername();
+    });
     const settingsButton = $("#settingsButton");
     const settingsMenu = $("#settingsMenu");
     if (settingsButton && settingsMenu) {

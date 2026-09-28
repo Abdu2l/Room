@@ -1282,3 +1282,4 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
   .bubble { animation: bubble-in 750ms cubic-bezier(.25, 1.45, .35, 1) both; }
 }
 .connect-dialog { position: fixed; inset: 0; margin: auto; }
+.settings-input { width: 100%; min-height: 42px; }

@@ -15,16 +15,16 @@
     <meta name="twitter:title" content="Room – Your Listening Stats" />
     <meta name="twitter:description" content="Your Spotify listening, tracked with Last.fm and turned into stats, galaxies and share cards." />
     <link rel="icon" type="image/svg+xml" href="./logo.svg?v=3" />
-    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=24" />
+    <link id="themeStylesheet" rel="stylesheet" href="./styles.css?v=25" />
     <script>
       try {
         var __roomTheme = localStorage.getItem("room-theme") || "grey";
-        var __themeHref = { pink: "./themes/pink.css?v=24", green: "./themes/green.css?v=24", red: "./themes/red.css?v=24" }[__roomTheme];
+        var __themeHref = { pink: "./themes/pink.css?v=25", green: "./themes/green.css?v=25", red: "./themes/red.css?v=25" }[__roomTheme];
         if (__themeHref) document.getElementById("themeStylesheet").href = __themeHref;
       } catch (e) {}
     </script>
-    <script src="./config.js?v=24"></script>
-    <script src="./app.js?v=24" defer></script>
+    <script src="./config.js?v=25"></script>
+    <script src="./app.js?v=25" defer></script>
   </head>
   <body>
     <div class="paper">
@@ -57,6 +57,9 @@
             <div class="settings-menu" id="settingsMenu" hidden>
               <p class="settings-title">SETTINGS</p>
               <span class="connection-label" id="connectionLabel"><i></i> Preview mode</span>
+              <p class="settings-title">LAST.FM USERNAME</p>
+              <input id="menuUsername" class="client-id-input settings-input" type="text" inputmode="text" autocomplete="username" spellcheck="false" placeholder="Last.fm username" />
+              <button class="pill-button pill-dark" id="menuLoadButton" type="button">Show my stats <span aria-hidden="true">↗</span></button>
               <button class="pill-button pill-dark" id="connectButton" type="button">Log in with Spotify <span aria-hidden="true">↗</span></button>
               <button class="text-button disconnect-button" id="disconnectButton" type="button" hidden>Disconnect</button>
               <a class="settings-credit" href="https://github.com/Abdu2l" target="_blank" rel="noreferrer">made by Abdu2l ↗</a>
