@@ -1,5 +1,7 @@
 # Room
 
+🎵 **[Live demo → abdu2l.github.io/Room](https://abdu2l.github.io/Room/)**
+
 A local-first listening dashboard for Spotify listeners who use Last.fm to scrobble their music. Last.fm records listening; Listening Room reads public Last.fm scrobbles and turns them into period rankings and activity views.
 
 ## Run it
