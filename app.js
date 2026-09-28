@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=25",
-    pink: "./themes/pink.css?v=25",
-    green: "./themes/green.css?v=25",
-    red: "./themes/red.css?v=25"
+    grey: "./styles.css?v=26",
+    pink: "./themes/pink.css?v=26",
+    green: "./themes/green.css?v=26",
+    red: "./themes/red.css?v=26"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -345,12 +345,59 @@
     return pending;
   }
 
-  function getTrackArtworkFallback(artist, title) {
-    return itunesTrackArtwork(artist, title);
+  async function lastfmTrackInfoArtwork(artist, title) {
+    const key = String(artist || "").trim().toLocaleLowerCase() + "\u0000" + String(title || "").trim().toLocaleLowerCase();
+    if (lastfmTrackArtwork.has(key)) return lastfmTrackArtwork.get(key);
+    if (artworkInflight.has("lfmtrack:" + key)) return artworkInflight.get("lfmtrack:" + key);
+    const apiKey = getLastfmApiKey();
+    if (!apiKey || !artist || !title) return "";
+    const pending = lastfmApi("track.getInfo", "", apiKey, {
+      artist: String(artist), track: String(title), autocorrect: 1
+    }).then((payload) => {
+      const image = lastfmArtwork(payload?.track?.album?.image) || lastfmArtwork(payload?.track?.image);
+      lastfmTrackArtwork.set(key, image || "");
+      return image || "";
+    }).catch(() => {
+      lastfmTrackArtwork.set(key, "");
+      return "";
+    }).finally(() => {
+      artworkInflight.delete("lfmtrack:" + key);
+    });
+    artworkInflight.set("lfmtrack:" + key, pending);
+    return pending;
+  }
+
+  async function getTrackArtworkFallback(artist, title) {
+    const itunes = await itunesTrackArtwork(artist, title);
+    if (itunes) return itunes;
+    // Last.fm's own channel demonstrably works even where stores fail,
+    // and its album art is often real for regional catalogues.
+    try {
+      return await lastfmTrackInfoArtwork(artist, title);
+    } catch {
+      return "";
+    }
+  }
+
+  function scanArtistImage(artist) {
+    const key = String(artist || "").trim().toLocaleLowerCase();
+    if (!key) return "";
+    const pools = [
+      ...(state.lastfmTopTracks || []),
+      ...(state.tracks || []),
+      ...(state.lastfmRows || []),
+      ...(state.recent || [])
+    ];
+    for (const row of pools) {
+      const name = row.artist || row.artistName || "";
+      const image = secureArtworkUrl(row.image || "");
+      if (image && String(name).trim().toLocaleLowerCase() === key) return image;
+    }
+    return "";
   }
 
   function getArtistArtworkFallback(artist) {
-    return deezerArtistArtwork(artist);
+    return deezerArtistArtwork(artist).then((image) => image || scanArtistImage(artist));
   }
 
   async function mapWithConcurrency(items, limit, fn) {
@@ -408,6 +455,18 @@
         const key = trackArtworkKey(row);
         if (!trackArtByKey.has(key)) trackArtByKey.set(key, image);
       }
+    });
+    // Last resort for faces: reuse a found cover from the same artist's songs.
+    const trackArtByArtist = new Map();
+    (Array.isArray(tracks) ? tracks : []).forEach((track) => {
+      const name = String(track.artist || track.artistName || "").trim().toLocaleLowerCase();
+      const image = secureArtworkUrl(track?.image);
+      if (name && image && !trackArtByArtist.has(name)) trackArtByArtist.set(name, image);
+    });
+    (Array.isArray(artists) ? artists : []).forEach((artist) => {
+      if (secureArtworkUrl(artist.image)) return;
+      const known = trackArtByArtist.get(String(artist.name || "").trim().toLocaleLowerCase());
+      if (known) artist.image = known;
     });
   }
 
@@ -1785,10 +1844,13 @@
     }
   }
 
-  function openShareDialog() {
+  async function openShareDialog() {
     const dialog = $("#shareDialog");
     if (!dialog) return;
     openDialog(dialog);
+    try {
+      await enrichMissingArtwork(state.lastfmTopTracks, state.lastfmTopArtists, state.lastfmRows);
+    } catch { /* Paint with whatever artwork is already cached. */ }
     refreshSharePreview();
   }
 
