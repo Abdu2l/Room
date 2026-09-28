@@ -10,10 +10,10 @@
   const LASTFM_CACHE_KEY = "listening-room-lastfm-cache-v1";
   const THEME_KEY = "room-theme";
   const THEMES = {
-    grey: "./styles.css?v=23",
-    pink: "./themes/pink.css?v=23",
-    green: "./themes/green.css?v=23",
-    red: "./themes/red.css?v=23"
+    grey: "./styles.css?v=24",
+    pink: "./themes/pink.css?v=24",
+    green: "./themes/green.css?v=24",
+    red: "./themes/red.css?v=24"
   };
   const RANGE_MS = {
     day: 24 * 60 * 60 * 1000,
@@ -970,8 +970,7 @@
     $("#noteArtist").textContent = artist || "Unknown artist";
     $("#noteInput").value = entry.note;
     paintNoteStars();
-    const dialog = $("#noteDialog");
-    if (dialog && !dialog.open) dialog.showModal();
+    openDialog($("#noteDialog"));
   }
 
   function trackRows(tracks, limit = 5, recentMode = false) {
@@ -1768,7 +1767,7 @@
   function openShareDialog() {
     const dialog = $("#shareDialog");
     if (!dialog) return;
-    if (!dialog.open) dialog.showModal();
+    openDialog(dialog);
     refreshSharePreview();
   }
 
@@ -1986,6 +1985,18 @@
     showToast("Last.fm username removed from this browser.");
   }
 
+  function openDialog(dialog) {
+    if (!dialog || dialog.open) return;
+    try {
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+    } catch {
+      try {
+        dialog.setAttribute("open", "");
+      } catch { /* The dialog cannot open in this browser. */ }
+    }
+  }
+
   function openConnectDialog() {
     $("#lastfmUsername").value = state.lastfmUsername || localStorage.getItem(LASTFM_USERNAME_KEY) || "";
     $("#lastfmApiKey").value = getLastfmApiKey();
@@ -1995,14 +2006,15 @@
       ? "The Last.fm reader is ready. Link Spotify on Last.fm, then enter your Last.fm username here."
       : "First connect Spotify on Last.fm. The website owner also needs to add a free Last.fm API key.";
     $("#ownerSetup").hidden = hasKey;
-    $("#connectDialog").showModal();
+    openDialog($("#connectDialog"));
   }
 
   function wireEvents() {
     $("#connectButton").addEventListener("click", () => {
       closeSettingsMenu();
       if (state.mode !== "lastfm") {
-        window.open("https://www.last.fm/settings/applications", "_blank", "noopener,noreferrer");
+        const popup = window.open("https://www.last.fm/settings/applications", "_blank", "noopener,noreferrer");
+        if (!popup) showToast("Popups are blocked. Open last.fm/settings/applications manually, then enter your username here.");
       }
       openConnectDialog();
     });

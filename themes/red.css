@@ -1281,3 +1281,4 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
   .artist-art, .artist-art::before, .artist-art::after { animation: none; }
   .bubble { animation: bubble-in 750ms cubic-bezier(.25, 1.45, .35, 1) both; }
 }
+.connect-dialog { position: fixed; inset: 0; margin: auto; }
