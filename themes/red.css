@@ -1266,3 +1266,18 @@ main { width: 100%; max-width: var(--page-width); margin: 0 auto; }
 .galaxy-lines line { stroke: rgb(255 255 255 / 55%); stroke-width: 2; stroke-dasharray: 5 11; animation: line-flow 3.2s linear infinite; }
 @keyframes bubble-in { from { opacity: 0; transform: scale(.3); } }
 @keyframes line-flow { to { stroke-dashoffset: -32; } }
+
+@media (max-width: 620px) {
+  .main-nav { padding: 4px; gap: 2px; }
+  .nav-link { flex: 0 0 auto; padding: 8px 10px; font-size: 11px; white-space: nowrap; }
+  .nav-icon { width: 12px; height: 12px; margin-right: 4px; }
+  .main-nav, .range-switch, .icon-button, .panel, .stat-card { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .main-nav, .range-switch { background: rgb(255 255 255 / 45%); }
+  .icon-button { background: rgb(255 255 255 / 55%); }
+  .panel { background: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(255 255 255 / 55%)); }
+  .stat-card { background: linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(255 255 255 / 58%)); }
+  .panel.listening-note { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .stat-card.is-dark { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .artist-art, .artist-art::before, .artist-art::after { animation: none; }
+  .bubble { animation: bubble-in 750ms cubic-bezier(.25, 1.45, .35, 1) both; }
+}
