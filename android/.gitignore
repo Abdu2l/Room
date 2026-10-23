@@ -1,0 +1,10 @@
+# Android/Gradle generated files
+.gradle/
+**/build/
+local.properties
+*.iml
+.idea/
+
+# Keep signing material and machine-specific secrets out of git
+*.jks
+*.keystore

@@ -31,6 +31,12 @@ Last.fm's API documentation asks applications to avoid excessive requests. Liste
 
 Last.fm asks applications planning commercial API use to contact them first.
 
+## Android app
+
+A native Kotlin/Jetpack Compose Android client lives in [`android/`](./android/); it is not a WebView wrapper. It shares the Last.fm public API key configured for this Room project and provides the Last.fm dashboard, Spotify JSON history import (processed locally), theme controls, track diary notes, and PNG story/square/track share cards. Artwork can be enriched from public iTunes, Deezer, and Last.fm artwork endpoints.
+
+Open `android/` in Android Studio with Java 17 and Android SDK 37 to build and run the app. A debug/testing APK is published separately under GitHub Releases; it is not a Play Store release. Debug builds are for sideloading and are not signed with a Play release key.
+
 ## Files
 
 - [index.html](./index.html) — dashboard and Last.fm connection dialog.
