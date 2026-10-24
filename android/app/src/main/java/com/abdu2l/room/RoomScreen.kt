@@ -10,9 +10,17 @@ import android.os.Build
 import android.graphics.Color as AndroidColor
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -20,6 +28,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -94,6 +103,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
@@ -103,6 +113,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -132,11 +144,21 @@ internal data class RoomPalette(
     val deep: Color
 )
 
+private fun roomGrain(): androidx.compose.ui.graphics.ImageBitmap {
+    val size = 128
+    val random = java.util.Random(17)
+    val pixels = IntArray(size * size) {
+        val value = if (random.nextBoolean()) 255 else 0
+        android.graphics.Color.argb(30, value, value, value)
+    }
+    return Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).apply { setPixels(pixels, 0, size, 0, 0, size, size) }.asImageBitmap()
+}
+
 private fun palette(theme: String) = when (theme) {
-    "pink" -> RoomPalette(Color(0xFFB9A8B0), Color(0xA8F5EAF0), Color(0xFF241920), Color(0xFF796773), Color(0xFFE778B3), Color(0x80FFFFFF), Color(0xFF382230))
-    "green" -> RoomPalette(Color(0xFFAAB7AB), Color(0xA8EAF3EB), Color(0xFF17231A), Color(0xFF65756A), Color(0xFF6ACB84), Color(0x80FFFFFF), Color(0xFF1F3928))
-    "red" -> RoomPalette(Color(0xFFBBAAAA), Color(0xA8F4E8E8), Color(0xFF261A1A), Color(0xFF796565), Color(0xFFE67679), Color(0x80FFFFFF), Color(0xFF3B2223))
-    else -> RoomPalette(Color(0xFFACACAC), Color(0xA8E4E4E4), Color(0xFF191919), Color(0xFF747474), Color(0xFF939393), Color(0x99FFFFFF), Color(0xFF252525))
+    "pink" -> RoomPalette(Color(0xFFC6B9C1), Color(0x70FFFFFF), Color(0xFF241920), Color(0xFF796773), Color(0xFFE778B3), Color(0x80FFFFFF), Color(0xFF382230))
+    "green" -> RoomPalette(Color(0xFFBAC8BC), Color(0x70FFFFFF), Color(0xFF17231A), Color(0xFF65756A), Color(0xFF6ACB84), Color(0x80FFFFFF), Color(0xFF1F3928))
+    "red" -> RoomPalette(Color(0xFFCDBBBB), Color(0x70FFFFFF), Color(0xFF261A1A), Color(0xFF796565), Color(0xFFE67679), Color(0x80FFFFFF), Color(0xFF3B2223))
+    else -> RoomPalette(Color(0xFFC8C8C8), Color(0x70FFFFFF), Color(0xFF191919), Color(0xFF747474), Color(0xFF939393), Color(0x99FFFFFF), Color(0xFF252525))
 }
 
 @Composable
@@ -166,49 +188,53 @@ internal fun RoomApp(viewModel: RoomViewModel = viewModel()) {
         var showShareCard by rememberSaveable { mutableStateOf(false) }
         var editingTrack by remember { mutableStateOf<ListeningTrack?>(null) }
 
+        val grain = remember { roomGrain() }
+        val ambientMotion = rememberInfiniteTransition(label = "ambient-canvas")
+        val ambientShift by ambientMotion.animateFloat(-.08f, .08f, infiniteRepeatable(tween(28_000, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "ambient-shift")
         Scaffold(
-            modifier = Modifier.fillMaxSize().background(Brush.linearGradient(listOf(colors.background, colors.background.copy(alpha = .92f), colors.background))),
+            modifier = Modifier.fillMaxSize().drawBehind {
+                drawRect(Brush.linearGradient(listOf(colors.background, colors.background.copy(alpha = .92f), colors.background)))
+                drawCircle(colors.accent.copy(alpha = .14f), size.minDimension * .72f, androidx.compose.ui.geometry.Offset(size.width * (.12f + ambientShift), size.height * .08f))
+                drawCircle(Color.White.copy(alpha = .12f), size.minDimension * .58f, androidx.compose.ui.geometry.Offset(size.width * (.92f - ambientShift), size.height * .68f))
+                val tile = 192.dp.toPx().toInt().coerceAtLeast(1)
+                for (y in 0 until size.height.toInt() step tile) for (x in 0 until size.width.toInt() step tile) {
+                    drawImage(grain, dstOffset = IntOffset(x, y), dstSize = IntSize(tile, tile), alpha = .10f)
+                }
+            },
             containerColor = Color.Transparent,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
-                RoomTopBar(
-                    state = state,
-                    colors = colors,
-                    onSettings = { showSettings = true },
-                    onRefresh = viewModel::refresh,
-                    onShare = { showShareCard = true }
-                )
-            },
-            bottomBar = {
-                NavigationBar(containerColor = colors.card.copy(alpha = .92f), contentColor = colors.ink, windowInsets = WindowInsets.navigationBars) {
-                    RoomTab.entries.forEach { tab ->
-                        NavigationBarItem(
-                            selected = state.tab == tab,
-                            onClick = { viewModel.setTab(tab) },
-                            icon = { Icon(tabIcon(tab), contentDescription = null) },
-                            label = { Text(tab.title, fontSize = 10.sp, maxLines = 1) },
-                            colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                                selectedIconColor = colors.ink,
-                                selectedTextColor = colors.ink,
-                                indicatorColor = colors.accent.copy(alpha = 0.25f),
-                                unselectedIconColor = colors.muted,
-                                unselectedTextColor = colors.muted
-                            )
-                        )
-                    }
+                Column {
+                    RoomTopBar(
+                        state = state,
+                        colors = colors,
+                        onSettings = { showSettings = true },
+                        onRefresh = viewModel::refresh,
+                        onShare = { showShareCard = true }
+                    )
+                    RoomNavigationPill(state.tab, colors, viewModel::setTab)
                 }
-            }
+            },
         ) { padding ->
-            Column(Modifier.fillMaxSize().padding(padding).background(Brush.radialGradient(listOf(Color.White.copy(alpha = .19f), Color.Transparent, Color.Transparent)))) {
+            Column(Modifier.fillMaxSize().padding(padding)) {
                 if (state.error != null) NoticeCard(state.error!!, true, colors, viewModel::clearNotice)
                 else if (state.message != null) NoticeCard(state.message!!, false, colors, viewModel::clearNotice)
                 if (state.loading) LinearLoading(colors)
-                when (state.tab) {
-                    RoomTab.OVERVIEW -> OverviewScreen(state, colors, viewModel, onConnect = { showSettings = true }, onImport = { importPicker.launch(arrayOf("application/json", "text/json")) }, onTrack = { editingTrack = it })
-                    RoomTab.TRACKS -> TracksScreen(state, colors, viewModel::setRange, onTrack = { editingTrack = it })
-                    RoomTab.ARTISTS -> ArtistsScreen(state, colors, viewModel::setRange)
-                    RoomTab.GALAXY -> GalaxyScreen(state, colors, viewModel, onConnect = { showSettings = true })
-                    RoomTab.ACTIVITY -> ActivityScreen(state, colors, viewModel::setRange)
+                AnimatedContent(
+                    targetState = state.tab,
+                    transitionSpec = {
+                        (fadeIn(tween(220)) + slideInHorizontally(tween(300)) { it / 18 }) togetherWith
+                            (fadeOut(tween(140)) + slideOutHorizontally(tween(220)) { -it / 24 })
+                    },
+                    label = "room-screen-transition"
+                ) { tab ->
+                    when (tab) {
+                        RoomTab.OVERVIEW -> OverviewScreen(state, colors, viewModel, onConnect = { showSettings = true }, onImport = { importPicker.launch(arrayOf("application/json", "text/json")) }, onTrack = { editingTrack = it })
+                        RoomTab.TRACKS -> TracksScreen(state, colors, viewModel::setRange, onTrack = { editingTrack = it })
+                        RoomTab.ARTISTS -> ArtistsScreen(state, colors, viewModel::setRange)
+                        RoomTab.GALAXY -> GalaxyScreen(state, colors, viewModel, onConnect = { showSettings = true })
+                        RoomTab.ACTIVITY -> ActivityScreen(state, colors, viewModel::setRange)
+                    }
                 }
             }
         }
@@ -265,9 +291,40 @@ private fun RoomTopBar(state: RoomUiState, colors: RoomPalette, onSettings: () -
                 Text("room", color = colors.ink, fontSize = 24.sp, fontWeight = FontWeight.Black, letterSpacing = (-1).sp)
                 Text(if (state.username.isBlank()) "YOUR LISTENING, IN FULL COLOR" else "ROOM FOR ${state.username.uppercase(Locale.getDefault())}", color = colors.muted, fontSize = 8.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            IconButton(onClick = onShare) { Icon(Icons.Rounded.Share, "Share", tint = colors.ink) }
-            IconButton(onClick = onRefresh) { Icon(Icons.Rounded.Refresh, "Refresh", tint = colors.ink) }
-            IconButton(onClick = onSettings) { Icon(Icons.Rounded.Settings, "Settings", tint = colors.ink) }
+            IconButton(onClick = onShare, modifier = Modifier.size(38.dp).clip(CircleShape).background(Color.White.copy(alpha = .42f)).border(1.dp, Color.White.copy(alpha = .58f), CircleShape)) { Icon(Icons.Rounded.Share, "Share", tint = colors.ink, modifier = Modifier.size(18.dp)) }
+            IconButton(onClick = onRefresh, modifier = Modifier.size(38.dp).clip(CircleShape).background(Color.White.copy(alpha = .42f)).border(1.dp, Color.White.copy(alpha = .58f), CircleShape)) { Icon(Icons.Rounded.Refresh, "Refresh", tint = colors.ink, modifier = Modifier.size(18.dp)) }
+            IconButton(onClick = onSettings, modifier = Modifier.size(38.dp).clip(CircleShape).background(Color.White.copy(alpha = .42f)).border(1.dp, Color.White.copy(alpha = .58f), CircleShape)) { Icon(Icons.Rounded.Settings, "Settings", tint = colors.ink, modifier = Modifier.size(18.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun RoomNavigationPill(selected: RoomTab, colors: RoomPalette, onSelect: (RoomTab) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp)
+            .clip(CircleShape)
+            .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = .58f), Color.White.copy(alpha = .34f))))
+            .border(1.dp, Color.White.copy(alpha = .72f), CircleShape)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RoomTab.entries.forEach { tab ->
+            val active = selected == tab
+            val pillColor by animateColorAsState(if (active) Color.White.copy(alpha = .94f) else Color.Transparent, tween(300), label = "nav-pill-color")
+            val scale by animateFloatAsState(if (active) 1f else .97f, tween(430, easing = FastOutSlowInEasing), label = "nav-pill")
+            Surface(
+                color = pillColor,
+                shape = CircleShape,
+                modifier = Modifier.weight(1f).graphicsLayer(scaleX = scale, scaleY = scale)
+                    .clickable { onSelect(tab) }
+            ) {
+                Row(Modifier.padding(horizontal = 4.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Icon(tabIcon(tab), contentDescription = null, tint = if (active) colors.ink else colors.muted, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(when (tab) { RoomTab.OVERVIEW -> "Overview"; else -> tab.title }, color = if (active) colors.ink else colors.muted, fontSize = 9.sp, fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Clip)
+                }
+            }
         }
     }
 }
@@ -280,8 +337,12 @@ private fun OverviewScreen(state: RoomUiState, colors: RoomPalette, viewModel: R
     val totalPlays = if (state.activeHistory) rows.size else state.stats?.totalScrobbles ?: 0
     val totalTime = if (state.activeHistory) formatDuration(rows.sumOf { it.durationMs }) else "≈ ${formatDuration((totalPlays * 3.5 * 60_000).toLong())}"
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(6.dp))
         HeroCard(state, colors, onConnect, onImport) { viewModel.clearHistory() }
+        Column(Modifier.padding(top = 5.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text("THE LAST LITTLE WHILE", color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.7.sp)
+            Text("A PORTRAIT IN PLAYS", color = colors.ink, fontSize = 31.sp, lineHeight = 32.sp, fontWeight = FontWeight.Normal, letterSpacing = (-.8).sp, modifier = Modifier.graphicsLayer(scaleX = .88f, transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, .5f)))
+        }
         RangeSelector(state.range, colors, viewModel::setRange)
         if (state.stats != null || state.activeHistory) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -319,13 +380,13 @@ private fun HeroCard(state: RoomUiState, colors: RoomPalette, onConnect: () -> U
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         shape = RoundedCornerShape(26.dp),
         modifier = Modifier.fillMaxWidth()
-            .background(Brush.linearGradient(listOf(Color(0xFF292929), Color(0xFF414141), Color(0xFF242424))), RoundedCornerShape(26.dp))
+            .background(Brush.linearGradient(listOf(Color(0xFF898989), Color(0xFF939393), Color(0xFF9B9B9B))), RoundedCornerShape(26.dp))
             .border(1.dp, Color.White.copy(alpha = .18f), RoundedCornerShape(26.dp))
     ) {
         Box(Modifier.fillMaxWidth().padding(22.dp)) {
-            Column(Modifier.fillMaxWidth(0.76f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.fillMaxWidth(0.70f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(if (state.activeHistory) "YOUR ARCHIVE, IN FULL COLOR" else if (state.username.isBlank()) "YOUR LISTENING, IN FULL COLOR" else "YOUR LISTENING, IN FULL COLOR", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
-                Text(if (state.activeHistory) "A LITTLE\nHISTORY." else "YOUR MUSIC\nHAS A STORY.", color = Color.White, fontSize = 34.sp, lineHeight = 34.sp, fontWeight = FontWeight.Black, letterSpacing = (-1.7).sp, modifier = Modifier.graphicsLayer(scaleX = .84f, transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, .5f)) )
+                Text(if (state.activeHistory) "A LITTLE\nHISTORY." else "YOUR MUSIC\nHAS A STORY.", color = Color.White, fontSize = 41.sp, lineHeight = 37.sp, fontWeight = FontWeight.Normal, letterSpacing = (-1.2).sp, modifier = Modifier.graphicsLayer(scaleX = .78f, transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, .5f)) )
                 Text(if (state.activeHistory) "${state.history?.size ?: 0} plays imported from your Spotify archive." else if (state.stats != null) "Your Last.fm listening, gathered in one room." else "A little room for the songs you keep coming back to.", color = Color.White.copy(alpha = .72f), fontSize = 13.sp, lineHeight = 19.sp)
                 Spacer(Modifier.height(2.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -333,17 +394,43 @@ private fun HeroCard(state: RoomUiState, colors: RoomPalette, onConnect: () -> U
                     SmallAction(if (state.activeHistory) "Import more" else "Import history", Color.White.copy(alpha = .12f), Color.White, onImport)
                     if (state.activeHistory) SmallAction("Clear import", Color.White.copy(alpha = .12f), Color.White, onClearImport)
                 }
+                state.stats?.recent?.firstOrNull()?.let { latest ->
+                    val latestArtwork = state.stats.tracks.firstOrNull { it.name.equals(latest.track, true) && it.artist.equals(latest.artist, true) }?.image.orEmpty()
+                    NowPlayingBadge(latest, latestArtwork)
+                }
             }
-            VinylArtwork(colors, Modifier.align(Alignment.CenterEnd).size(142.dp))
+            VinylArtwork(colors, Modifier.align(Alignment.CenterEnd).size(132.dp))
             Text(if (state.activeHistory) "HISTORY · LOCAL" else if (state.stats == null) "ROOM NO. 01" else "LAST.FM · LIVE", color = Color.White.copy(alpha = .5f), fontSize = 8.sp, letterSpacing = 1.1.sp, modifier = Modifier.align(Alignment.BottomEnd))
         }
     }
 }
 
 @Composable
+private fun NowPlayingBadge(entry: PlayEntry, artwork: String) {
+    Row(
+        Modifier.fillMaxWidth(.98f).clip(RoundedCornerShape(13.dp))
+            .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = .19f), Color.White.copy(alpha = .09f))))
+            .border(1.dp, Color.White.copy(alpha = .25f), RoundedCornerShape(13.dp))
+            .padding(7.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RoomArtwork(artwork, Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)), ContentScale.Crop, artist = entry.artist, track = entry.track) {
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = .12f)), contentAlignment = Alignment.Center) { Text("♫", color = Color.White, fontSize = 15.sp) }
+        }
+        Spacer(Modifier.width(8.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text("LAST.FM IS TRACKING", color = Color.White.copy(alpha = .64f), fontSize = 7.sp, fontWeight = FontWeight.Bold, letterSpacing = .8.sp, maxLines = 1)
+            Text(entry.track, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(entry.artist, color = Color.White.copy(alpha = .68f), fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Text("♫", color = Color.White.copy(alpha = .82f), fontSize = 16.sp, modifier = Modifier.padding(horizontal = 5.dp))
+    }
+}
+
+@Composable
 private fun VinylArtwork(colors: RoomPalette, modifier: Modifier = Modifier) {
     val motion = rememberInfiniteTransition(label = "record-motion")
-    val rotation by motion.animateFloat(0f, 360f, infiniteRepeatable(tween(24_000, easing = FastOutSlowInEasing), RepeatMode.Restart), label = "record-spin")
+    val rotation by motion.animateFloat(0f, 360f, infiniteRepeatable(tween(24_000, easing = LinearEasing), RepeatMode.Restart), label = "record-spin")
     val pulse by motion.animateFloat(.94f, 1.06f, infiniteRepeatable(tween(4_000), RepeatMode.Reverse), label = "record-pulse")
     Canvas(modifier) {
         val center = androidx.compose.ui.geometry.Offset(size.width * .52f, size.height * .49f)
@@ -354,10 +441,15 @@ private fun VinylArtwork(colors: RoomPalette, modifier: Modifier = Modifier) {
             moveTo(size.width * .05f, size.height * .71f)
             cubicTo(size.width * .14f, size.height * .09f, size.width * .83f, size.height * .13f, size.width * .95f, size.height * .48f)
         }
-        drawPath(orbit, Color.White.copy(alpha = .42f), style = Stroke(width = 1.dp.toPx(), cap = StrokeCap.Round))
+        rotate(rotation * 1.25f, center) { drawPath(orbit, Color.White.copy(alpha = .42f), style = Stroke(width = 1.dp.toPx(), cap = StrokeCap.Round)) }
+        rotate(-rotation * .88f, center) {
+            drawOval(Color.White.copy(alpha = .13f), topLeft = androidx.compose.ui.geometry.Offset(size.width * .09f, size.height * .23f), size = androidx.compose.ui.geometry.Size(size.width * .82f, size.height * .45f), style = Stroke(width = .8.dp.toPx()))
+        }
         rotate(rotation, center) {
             drawCircle(Color(0xFF292929), radius, center)
             for (ring in 1..6) drawCircle(Color.White.copy(alpha = .075f), radius * (ring / 7f), center, style = Stroke(width = 1.dp.toPx()))
+            drawArc(Color.White.copy(alpha = .22f), startAngle = 35f, sweepAngle = 38f, useCenter = false, topLeft = androidx.compose.ui.geometry.Offset(center.x - radius * .84f, center.y - radius * .84f), size = androidx.compose.ui.geometry.Size(radius * 1.68f, radius * 1.68f), style = Stroke(width = 2.dp.toPx()))
+            drawLine(Color.White.copy(alpha = .14f), androidx.compose.ui.geometry.Offset(center.x - radius * .72f, center.y - radius * .18f), androidx.compose.ui.geometry.Offset(center.x - radius * .48f, center.y - radius * .52f), strokeWidth = 1.dp.toPx())
             drawCircle(colors.accent, radius * .31f, center)
             drawCircle(Color(0xFFD8D8D8), radius * .055f, center)
         }
@@ -514,10 +606,10 @@ private fun RangeSelector(selected: TimeRange, colors: RoomPalette, onChange: (T
 
 @Composable
 private fun MetricCard(label: String, value: String, note: String, icon: String, colors: RoomPalette, modifier: Modifier = Modifier) {
-    Card(modifier, shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = colors.card)) {
+    Card(modifier.shadow(12.dp, RoundedCornerShape(20.dp), ambientColor = Color.Black.copy(alpha = .07f), spotColor = Color.Black.copy(alpha = .07f)).border(1.dp, Color.White.copy(alpha = .62f), RoundedCornerShape(20.dp)), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = colors.card)) {
         Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text("$icon  $label", color = colors.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = .8.sp)
-            Text(value, color = colors.ink, fontSize = 21.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(value.uppercase(Locale.ROOT), color = colors.ink, fontSize = 24.sp, fontWeight = FontWeight.Normal, letterSpacing = (-.35).sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(note, color = colors.muted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
@@ -525,7 +617,7 @@ private fun MetricCard(label: String, value: String, note: String, icon: String,
 
 @Composable
 private fun Panel(colors: RoomPalette, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
-    Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = Color.Transparent), modifier = Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(colors.card.copy(alpha = .96f), colors.card.copy(alpha = .76f))), RoundedCornerShape(22.dp))) {
+    Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = Color.Transparent), modifier = Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Color.White.copy(alpha = .54f), Color.White.copy(alpha = .28f))), RoundedCornerShape(22.dp)).border(1.dp, Color.White.copy(alpha = .58f), RoundedCornerShape(22.dp)).shadow(12.dp, RoundedCornerShape(22.dp), ambientColor = Color.Black.copy(alpha = .10f), spotColor = Color.Black.copy(alpha = .10f))) {
         Column(Modifier.fillMaxWidth().padding(17.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
     }
 }
@@ -534,7 +626,7 @@ private fun Panel(colors: RoomPalette, content: @Composable androidx.compose.fou
 private fun PanelHeading(title: String, subtitle: String, colors: RoomPalette, trailing: String? = null) {
     Row(verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(title, color = colors.ink, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(title.uppercase(), color = colors.ink, fontSize = 21.sp, fontWeight = FontWeight.Normal, letterSpacing = (-.35).sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.graphicsLayer(scaleX = .88f, transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, .5f)))
             Text(subtitle, color = colors.muted, fontSize = 11.sp, lineHeight = 15.sp)
         }
         if (trailing != null) Text(trailing, color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = .6.sp)
@@ -544,7 +636,7 @@ private fun PanelHeading(title: String, subtitle: String, colors: RoomPalette, t
 @Composable
 private fun ScreenHeading(title: String, subtitle: String, colors: RoomPalette) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 3.dp, bottom = 2.dp)) {
-        Text(title, color = colors.ink, fontSize = 27.sp, lineHeight = 31.sp, fontWeight = FontWeight.Bold, letterSpacing = (-.7).sp)
+        Text(title.uppercase(), color = colors.ink, fontSize = 33.sp, lineHeight = 33.sp, fontWeight = FontWeight.Normal, letterSpacing = (-.9).sp, modifier = Modifier.graphicsLayer(scaleX = .86f, transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, .5f)))
         Text(subtitle.uppercase(), color = colors.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
     }
 }
@@ -722,11 +814,12 @@ private fun WeekChart(rows: List<PlayEntry>, isHistory: Boolean, colors: RoomPal
     val maximum = (days.maxOfOrNull { it.second } ?: 0f).coerceAtLeast(1f)
     Row(Modifier.fillMaxWidth().height(118.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Bottom) {
         days.forEach { (label, value, count) ->
+            val barFraction by animateFloatAsState((value / maximum).coerceIn(.035f, 1f), tween(700, easing = FastOutSlowInEasing), label = "activity-bar")
             Column(Modifier.weight(1f).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
                 Text(if (count > 0) count.toString() else "", color = colors.muted, fontSize = 8.sp)
                 Spacer(Modifier.height(5.dp))
                 Box(Modifier.fillMaxWidth(.52f).weight(1f).clip(RoundedCornerShape(topStart = 7.dp, topEnd = 7.dp)).background(colors.background), contentAlignment = Alignment.BottomCenter) {
-                    Box(Modifier.fillMaxWidth().fillMaxHeight((value / maximum).coerceIn(.035f, 1f)).clip(RoundedCornerShape(topStart = 7.dp, topEnd = 7.dp)).background(Brush.verticalGradient(listOf(colors.accent, colors.deep.copy(alpha = .8f)))))
+                    Box(Modifier.fillMaxWidth().fillMaxHeight(barFraction).background(Brush.verticalGradient(listOf(colors.accent, colors.deep.copy(alpha = .8f)))))
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(label, color = colors.muted, fontSize = 9.sp)
@@ -768,7 +861,7 @@ private fun SettingsDialog(state: RoomUiState, colors: RoomPalette, viewModel: R
     val uriHandler = LocalUriHandler.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = colors.card,
+        containerColor = colors.card.copy(alpha = 1f),
         title = { Text("Make Room yours", color = colors.ink, fontWeight = FontWeight.Bold) },
         text = {
             Column(Modifier.heightIn(max = 580.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(11.dp)) {
@@ -802,7 +895,7 @@ private fun TrackNoteDialog(track: ListeningTrack, initial: TrackNote, colors: R
     var text by remember(track.name, track.artist) { mutableStateOf(initial.text) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = colors.card,
+        containerColor = colors.card.copy(alpha = 1f),
         title = { Text("Why this song matters", color = colors.muted, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

@@ -52,7 +52,7 @@ internal fun RoomShareCardDialog(
         value = withContext(Dispatchers.Default) { drawRoomCard(state, format) }
     }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxWidth(.92f), shape = RoundedCornerShape(26.dp), color = colors.card) {
+        Surface(Modifier.fillMaxWidth(.92f), shape = RoundedCornerShape(26.dp), color = colors.card.copy(alpha = 1f)) {
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
